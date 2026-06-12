@@ -373,3 +373,8 @@ export async function salvarRanking(
   })
   if (!res.ok) throw new Error(`Falha ao salvar ranking (${res.status})`)
 }
+
+export async function deletarRanking(configId: string): Promise<void> {
+  const res = await fetch(`${API}/rankings?config_id=eq.${configId}`, { method: 'DELETE' })
+  if (!res.ok) throw new Error(`Falha ao excluir ranking (${res.status})`)
+}

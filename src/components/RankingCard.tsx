@@ -1,28 +1,29 @@
 import { useEffect, useRef, useState } from 'react'
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
-import { carregarRankingSalvo, salvarRanking } from '../data'
+import { carregarRankingSalvo, deletarRanking, salvarRanking } from '../data'
 import type { RankingSalvo } from '../data'
 import { gerarRanking } from '../rankings'
 import type { PromptConfig } from '../rankings'
+import RankingResultado from './RankingResultado'
 
 type Estado = 'carregando' | 'idle' | 'loading' | 'done' | 'error'
+
+const SUGESTOES: string[] = [
+  'Melhores para home office',
+  'Mais espaçosos para família com cachorro',
+  'Melhor custo-benefício para casal',
+  'Imóveis com quintal amplo',
+  'Menor custo mensal total',
+  'Mais próximos ao centro',
+]
 
 interface Props {
   config: PromptConfig
   mensagemLoading: string
+  onAbrirImovel: (id: number) => void
+  existeImovel: (id: number) => boolean
 }
 
-const mdComponents = {
-  h1: ({ children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
-    <h3 {...props}>{children}</h3>
-  ),
-  h2: ({ children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
-    <h3 {...props}>{children}</h3>
-  ),
-}
-
-export default function RankingCard({ config, mensagemLoading }: Props) {
+export default function RankingCard({ config, mensagemLoading, onAbrirImovel, existeImovel }: Props) {
   const cardRef = useRef<HTMLDivElement>(null)
   const [estado, setEstado] = useState<Estado>('carregando')
   const [resultado, setResultado] = useState('')
@@ -30,6 +31,7 @@ export default function RankingCard({ config, mensagemLoading }: Props) {
   const [userInput, setUserInput] = useState('')
   const [geradoEm, setGeradoEm] = useState<string | null>(null)
   const [erroSalvar, setErroSalvar] = useState<string | null>(null)
+  const [colapsado, setColapsado] = useState(false)
 
   useEffect(() => {
     carregarRankingSalvo(config.id)
@@ -49,9 +51,23 @@ export default function RankingCard({ config, mensagemLoading }: Props) {
   const isPersonalizado = config.id === 'personalizado'
   const podeGerar = !isPersonalizado || userInput.trim().length > 0
 
+  async function excluir() {
+    try {
+      await deletarRanking(config.id)
+      setResultado('')
+      setGeradoEm(null)
+      setErroSalvar(null)
+      setColapsado(false)
+      setEstado('idle')
+    } catch {
+      setErroSalvar('Não foi possível excluir o ranking.')
+    }
+  }
+
   async function gerar() {
     if (!podeGerar) return
     cardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    setColapsado(false)
     setEstado('loading')
     setErro(null)
     setErroSalvar(null)
@@ -84,7 +100,18 @@ export default function RankingCard({ config, mensagemLoading }: Props) {
   return (
     <div className="ranking-card" ref={cardRef}>
       <div className="ranking-card-header">
-        <h3 className="ranking-card-titulo">{config.titulo}</h3>
+        <div className="ranking-card-header-row">
+          <h3 className="ranking-card-titulo">{config.titulo}</h3>
+          {estado === 'done' && (
+            <button
+              className="ranking-btn-toggle"
+              onClick={() => setColapsado((c) => !c)}
+              title={colapsado ? 'Mostrar ranking' : 'Ocultar ranking'}
+            >
+              {colapsado ? '▶' : '▼'}
+            </button>
+          )}
+        </div>
         <p className="ranking-card-desc">{config.descricao}</p>
       </div>
 
@@ -97,13 +124,23 @@ export default function RankingCard({ config, mensagemLoading }: Props) {
       {estado !== 'loading' && estado !== 'done' && estado !== 'carregando' && (
         <div className="ranking-card-body">
           {isPersonalizado && (
-            <textarea
-              className="ranking-textarea"
-              placeholder="Descreva o ranking que você quer... Ex: imóveis mais espaçosos para família com cachorro, ou melhores para home office"
-              value={userInput}
-              onChange={(e) => setUserInput(e.target.value)}
-              rows={3}
-            />
+            <>
+              <textarea
+                className="ranking-textarea"
+                placeholder="Descreva o ranking que você quer... Ex: imóveis mais espaçosos para família com cachorro, ou melhores para home office"
+                value={userInput}
+                onChange={(e) => setUserInput(e.target.value)}
+                rows={3}
+              />
+              <div className={`ranking-sugestoes${userInput.trim() ? ' ranking-sugestoes--preenchido' : ''}`}>
+                <span className="ranking-sugestoes-label">Ideias:</span>
+                {SUGESTOES.map((s) => (
+                  <button key={s} className="ranking-sugestao-chip" onClick={() => setUserInput(s)} type="button">
+                    {s}
+                  </button>
+                ))}
+              </div>
+            </>
           )}
 
           {estado === 'error' && (
@@ -134,13 +171,13 @@ export default function RankingCard({ config, mensagemLoading }: Props) {
         </div>
       )}
 
-      {estado === 'done' && (
+      {estado === 'done' && !colapsado && (
         <div className="ranking-resultado">
-          <div className="ranking-resultado-conteudo chat-bolha">
-            <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>
-              {resultado}
-            </ReactMarkdown>
-          </div>
+          <RankingResultado
+            texto={resultado}
+            onAbrirImovel={onAbrirImovel}
+            existeImovel={existeImovel}
+          />
           {geradoEm && (
             <p className="ranking-gerado-em">Gerado em {formatarData(geradoEm)}</p>
           )}
@@ -148,20 +185,32 @@ export default function RankingCard({ config, mensagemLoading }: Props) {
             <div className="ranking-erro">{erroSalvar}</div>
           )}
           {isPersonalizado && (
-            <textarea
-              className="ranking-textarea"
-              placeholder="Descreva o ranking que você quer..."
-              value={userInput}
-              onChange={(e) => setUserInput(e.target.value)}
-              rows={3}
-            />
+            <>
+              <textarea
+                className="ranking-textarea"
+                placeholder="Descreva o ranking que você quer..."
+                value={userInput}
+                onChange={(e) => setUserInput(e.target.value)}
+                rows={3}
+              />
+              <div className={`ranking-sugestoes${userInput.trim() ? ' ranking-sugestoes--preenchido' : ''}`}>
+                <span className="ranking-sugestoes-label">Ideias:</span>
+                {SUGESTOES.map((s) => (
+                  <button key={s} className="ranking-sugestao-chip" onClick={() => setUserInput(s)} type="button">
+                    {s}
+                  </button>
+                ))}
+              </div>
+            </>
           )}
-          <button
-            className="btn ranking-btn-refazer"
-            onClick={gerar}
-          >
-            Gerar novamente
-          </button>
+          <div className="ranking-acoes">
+            <button className="btn ranking-btn-refazer" onClick={gerar}>
+              Gerar novamente
+            </button>
+            <button className="ranking-btn-excluir" onClick={excluir}>
+              Excluir
+            </button>
+          </div>
         </div>
       )}
     </div>
