@@ -1,0 +1,30 @@
+node_modules
+dist
+dist-ssr
+*.local
+.vite
+
+# Segredos
+.env
+.env.*
+!.env.example
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+
+# TypeScript build info
+tsconfig.tsbuildinfo
+tsconfig.node.tsbuildinfo
+
+# Vite compilado (gerado de vite.config.ts)
+vite.config.js
+vite.config.d.ts
+
+# Claude Code (configurações locais)
+.claude/
+
+# Superpowers plugin
+docs/
