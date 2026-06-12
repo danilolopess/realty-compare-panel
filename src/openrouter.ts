@@ -60,7 +60,7 @@ async function chamarLLM(modelo: string, messages: ChatMessage[]): Promise<strin
       'HTTP-Referer': window.location.origin,
       'X-Title': 'Painel Imoveis Chat',
     },
-    body: JSON.stringify({ model: modelo, messages }),
+    body: JSON.stringify({ model: modelo, messages, temperature: 0.25 }),
   })
 
   if (!res.ok) {
@@ -107,7 +107,7 @@ async function* chamarLLMStream(modelo: string, messages: ChatMessage[]): AsyncG
       'HTTP-Referer': window.location.origin,
       'X-Title': 'Painel Imoveis Chat',
     },
-    body: JSON.stringify({ model: modelo, messages, stream: true }),
+    body: JSON.stringify({ model: modelo, messages, stream: true, temperature: 0.25 }),
   })
 
   if (!res.ok) {

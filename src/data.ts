@@ -41,6 +41,12 @@ interface DbRow {
   favorito: boolean
 }
 
+export interface RankingSalvo {
+  conteudo: string
+  userInput: string | null
+  geradoEm: string
+}
+
 const API = 'http://localhost:3000'
 
 // Cache das linhas cruas (formato do banco) do último fetchImoveis().
@@ -330,4 +336,40 @@ export function exportarSessaoMarkdown(sessao: ChatSession): void {
   a.download = `${slug || 'conversa'}.md`
   a.click()
   URL.revokeObjectURL(url)
+}
+
+// =====================================================================
+// Rankings gerados por IA (tabela rankings via PostgREST)
+// =====================================================================
+
+export async function carregarRankingSalvo(configId: string): Promise<RankingSalvo | null> {
+  const res = await fetch(`${API}/rankings?config_id=eq.${configId}&limit=1`)
+  if (!res.ok) return null
+  const rows: { config_id: string; conteudo: string; user_input: string | null; gerado_em: string }[] =
+    await res.json()
+  if (!rows.length) return null
+  const r = rows[0]
+  return { conteudo: r.conteudo, userInput: r.user_input, geradoEm: r.gerado_em }
+}
+
+// Upsert: substitui o registro inteiro (conteudo, user_input e gerado_em) para o configId.
+export async function salvarRanking(
+  configId: string,
+  conteudo: string,
+  userInput?: string,
+): Promise<void> {
+  const res = await fetch(`${API}/rankings`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Prefer: 'resolution=merge-duplicates,return=minimal',
+    },
+    body: JSON.stringify({
+      config_id: configId,
+      conteudo,
+      user_input: userInput ?? null,
+      gerado_em: new Date().toISOString(),
+    }),
+  })
+  if (!res.ok) throw new Error(`Falha ao salvar ranking (${res.status})`)
 }
