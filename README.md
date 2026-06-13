@@ -129,9 +129,9 @@ Acesse **http://localhost:5173** no navegador.
 
 | Serviço | Endereço | Descrição |
 |---|---|---|
-| Front-end (Vite) | http://localhost:5173 | Interface da aplicação |
-| API (PostgREST) | http://localhost:3000 | API REST do banco de dados |
-| Banco (PostgreSQL) | localhost:5432 | Banco de dados direto |
+| Front-end (Vite) | `http://localhost:5173` | Interface da aplicação |
+| API (PostgREST) | `http://localhost:3000` | API REST do banco de dados |
+| Banco (PostgreSQL) | `localhost:5432` | Banco de dados direto |
 
 ### Outros comandos disponíveis
 
@@ -154,6 +154,8 @@ A aplicação é organizada em seis abas, acessíveis pela barra de navegação 
 ### Painel
 
 A aba principal. Exibe todos os imóveis cadastrados em formato de cartões, com filtros e ordenação.
+
+![Aba Painel](docs/img/01-painel.png)
 
 **Filtros disponíveis:**
 - Tipo (Casa / Apartamento)
@@ -181,6 +183,8 @@ A aba principal. Exibe todos os imóveis cadastrados em formato de cartões, com
 
 Aba de gerenciamento do cadastro. Apresenta todos os imóveis em tabela com busca e ordenação por qualquer coluna.
 
+![Aba Imóveis](docs/img/02-imoveis.png)
+
 **Funcionalidades:**
 - Buscar por tipo, bairro, cidade ou operação
 - Ordenar por qualquer coluna (clique no cabeçalho)
@@ -206,24 +210,28 @@ Visualização em quadro Kanban com três colunas correspondentes aos status pos
 | Coluna | Descrição |
 |---|---|
 | **Não analisado** | Imóvel recém-cadastrado, ainda sem avaliação |
-| **Aguardando** | Imóvel em análise, aguardando visita ou informação |
+| **Aguardando resposta** | Imóvel em análise, aguardando visita ou informação |
 | **Inviabilizado** | Descartado (oculto no Painel por padrão) |
 
-**Como usar:** Arraste um cartão de uma coluna para outra. A mudança de status é salva automaticamente no banco de dados. Clique em um cartão para abrir seus detalhes completos em modal.
+**Como usar:** Arraste um cartão de uma coluna para outra. A mudança de status é salva automaticamente no banco de dados. Cada coluna possui um campo de busca próprio e o botão **Ver mais** abre os detalhes completos do imóvel em modal.
+
+![Aba Flow - Kanban](docs/img/05-flow.png)
 
 ---
 
 ### Rankings
 
-Gera classificações comparativas dos imóveis cadastrados utilizando inteligência artificial. Cada ranking analisa todos os imóveis sob uma perspectiva específica e os ordena com justificativas.
+Gera classificações comparativas dos imóveis cadastrados utilizando inteligência artificial. Cada ranking analisa todos os imóveis sob uma perspectiva específica e os ordena com justificativas. Clique em **Gerar Ranking** no card desejado.
 
 **Rankings disponíveis:**
-- **Custo-benefício** — melhor relação entre preço e características
-- **Para pets** — avaliação das condições de bem-estar para animais
-- **Melhores imóveis** — qualidade absoluta considerando todos os atributos
-- **Personalizado** — defina seus próprios critérios em linguagem natural
+- **Top 10 Melhores Custo-Benefício** — analisa custo por m², cômodos, garagem, quintal e localização
+- **Top 10 Melhores para Animais de Estimação** — avalia quintal, aceitação de pets, espaço interno e tipo de imóvel
+- **Top 10 Melhores Imóveis** — qualidade absoluta (área, quartos, garagem, infraestrutura), ignorando o custo
+- **Top 10 Personalizado** — descreva seus próprios critérios em linguagem natural; a IA expande e refina o pedido
 
 Os resultados são salvos no banco de dados e reutilizados até que o cadastro de imóveis seja alterado (adição, edição ou exclusão invalida os rankings automaticamente).
+
+![Aba Rankings](docs/img/06-rankings.png)
 
 > É necessário ter a variável `VITE_LLM_API_KEY` configurada no `.env`.
 
@@ -231,7 +239,11 @@ Os resultados são salvos no banco de dados e reutilizados até que o cadastro d
 
 ### Chat
 
-Interface de conversa em linguagem natural sobre os imóveis cadastrados. Permite fazer perguntas como:
+Interface de conversa em linguagem natural sobre os imóveis cadastrados.
+
+![Aba Chat](docs/img/07-chat.png)
+
+Permite fazer perguntas como:
 
 - *"Qual imóvel tem o menor custo mensal com pelo menos 2 quartos?"*
 - *"Quais imóveis aceitam pets e têm quintal?"*
@@ -259,16 +271,20 @@ O cadastro de imóveis é assistido por inteligência artificial. O fluxo aceita
 2. Clique em **+ Adicionar imóvel**
 3. No campo de texto, descreva o imóvel ou cole o conteúdo copiado de um site
 
+![Cadastro assistido por IA](docs/img/03-adicionar.png)
+
 **O sistema aceita qualquer formato de entrada**, por exemplo:
 
 - Descrição resumida:
-  ```
+
+  ```text
   Apartamento no Centro, 2 quartos, 1 vaga de garagem, aceita pet,
   aluguel R$ 950, condomínio R$ 180. Imobiliária XYZ, WhatsApp 5535999990000.
   ```
 
 - **Texto copiado diretamente de um site de imobiliária** (incluindo textos longos com informações irrelevantes — o modelo de IA extrai apenas o que é pertinente):
-  ```
+
+  ```text
   Apartamento tipo Studio no Condomínio Alphaville Garden, localizado na Rua
   das Flores, 123, Bairro Jardim Europa, Poços de Caldas - MG. Área privativa
   de 42m². 1 suíte, 1 vaga de garagem coberta. Lazer completo: piscina,
@@ -287,7 +303,7 @@ O modelo de IA analisa o texto e preenche automaticamente os campos: tipo, cidad
 
 É possível cadastrar **múltiplos imóveis em uma única operação**. Separe as descrições com qualquer delimitador claro:
 
-```
+```text
 Apartamento no Centro, 2 quartos, R$ 900/mês, sem garagem
 
 ---
@@ -336,17 +352,17 @@ Na aba **Imóveis**, clique no ícone de lápis (✏️) na linha do imóvel des
 
 ### Exportar lista de imóveis (JSON)
 
-Na aba **Painel**, com os filtros desejados aplicados, o botão **Exportar JSON** baixa um arquivo `imoveis.json` com os imóveis **atualmente visíveis** (respeitando os filtros selecionados).
+Na aba **Painel**, com os filtros desejados aplicados, o botão **⬇️ Gerar JSON** baixa um arquivo `imoveis.json` com os imóveis **atualmente visíveis** (respeitando os filtros selecionados). O contador no botão indica quantos imóveis serão exportados.
 
 ### Exportar conversa do Chat (Markdown)
 
-Na aba **Chat**, com uma sessão aberta, clique no ícone de exportação para baixar a conversa completa em formato `.md`.
+Na aba **Chat**, na barra lateral de conversas, cada sessão possui uma opção de exportação que baixa o histórico completo em formato `.md`.
 
 ---
 
 ## 9. Estrutura do projeto
 
-```
+```text
 imoveis/
 ├── docker/
 │   ├── init.sql          # schema do banco (tabelas imoveis, chat_sessions, rankings)
