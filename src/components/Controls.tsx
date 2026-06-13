@@ -1,24 +1,25 @@
 import type { FilterState, SortKey } from '../types'
 
+interface FiltrosVisiveis {
+  tipo: boolean
+  cidade: boolean
+  bairro: boolean
+  garagem: boolean
+  quintal: boolean
+  pet: boolean
+  contato: boolean
+}
+
 interface Props {
   state: FilterState
   onChange: (patch: Partial<FilterState>) => void
   bairros: string[]
+  tipos: string[]
+  cidades: string[]
+  filtrosVisiveis: FiltrosVisiveis
 }
 
-const tipos = [
-  { value: 'todos', label: 'Todos' },
-  { value: 'Apartamento', label: 'Apartamento' },
-  { value: 'Casa', label: 'Casa' },
-]
-
-const cidades = [
-  { value: 'todos', label: 'Todas' },
-  { value: 'Poços de Caldas/MG', label: 'Poços de Caldas' },
-  { value: 'São João da Boa Vista/SP', label: 'S. J. Boa Vista/SP' },
-]
-
-export default function Controls({ state, onChange, bairros }: Props) {
+export default function Controls({ state, onChange, bairros, tipos, cidades, filtrosVisiveis }: Props) {
   return (
     <div className="controls">
       <div className="ctrl">
@@ -31,47 +32,65 @@ export default function Controls({ state, onChange, bairros }: Props) {
         />
       </div>
 
-      <div className="ctrl">
-        <label>Tipo de imóvel</label>
-        <div className="chips">
-          {tipos.map((t) => (
+      {filtrosVisiveis.tipo && (
+        <div className="ctrl">
+          <label>Tipo de imóvel</label>
+          <div className="chips">
             <span
-              key={t.value}
-              className={'chip' + (state.tipo === t.value ? ' active' : '')}
-              onClick={() => onChange({ tipo: t.value })}
+              className={'chip' + (state.tipo === 'todos' ? ' active' : '')}
+              onClick={() => onChange({ tipo: 'todos' })}
             >
-              {t.label}
+              Todos
             </span>
-          ))}
+            {tipos.map((t) => (
+              <span
+                key={t}
+                className={'chip' + (state.tipo === t ? ' active' : '')}
+                onClick={() => onChange({ tipo: t })}
+              >
+                {t}
+              </span>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
-      <div className="ctrl">
-        <label>Cidade</label>
-        <div className="chips">
-          {cidades.map((c) => (
+      {filtrosVisiveis.cidade && (
+        <div className="ctrl">
+          <label>Cidade</label>
+          <div className="chips">
             <span
-              key={c.value}
-              className={'chip' + (state.cidade === c.value ? ' active' : '')}
-              onClick={() => onChange({ cidade: c.value })}
+              className={'chip' + (state.cidade === 'todos' ? ' active' : '')}
+              onClick={() => onChange({ cidade: 'todos' })}
             >
-              {c.label}
+              Todas
             </span>
-          ))}
+            {cidades.map((c) => (
+              <span
+                key={c}
+                className={'chip' + (state.cidade === c ? ' active' : '')}
+                onClick={() => onChange({ cidade: c })}
+              >
+                {c}
+              </span>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
-      <div className="ctrl">
-        <label>Bairro</label>
-        <select value={state.bairro} onChange={(e) => onChange({ bairro: e.target.value })}>
-          <option value="todos">Todos</option>
-          {bairros.map((b) => (
-            <option key={b} value={b}>
-              {b}
-            </option>
-          ))}
-        </select>
-      </div>
+      {filtrosVisiveis.bairro && (
+        <div className="ctrl">
+          <label>Bairro</label>
+          <select value={state.bairro} onChange={(e) => onChange({ bairro: e.target.value })}>
+            <option value="todos">Todos</option>
+            {bairros.map((b) => (
+              <option key={b} value={b}>
+                {b}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       <div className="ctrl">
         <label>Status</label>
@@ -97,38 +116,46 @@ export default function Controls({ state, onChange, bairros }: Props) {
         </select>
       </div>
 
-      <div className="ctrl">
-        <label>Garagem</label>
-        <select value={state.garagem} onChange={(e) => onChange({ garagem: e.target.value })}>
-          <option value="todos">Indiferente</option>
-          <option value="sim">Com garagem</option>
-          <option value="nao">Sem garagem</option>
-        </select>
-      </div>
+      {filtrosVisiveis.garagem && (
+        <div className="ctrl">
+          <label>Garagem</label>
+          <select value={state.garagem} onChange={(e) => onChange({ garagem: e.target.value })}>
+            <option value="todos">Indiferente</option>
+            <option value="sim">Com garagem</option>
+            <option value="nao">Sem garagem</option>
+          </select>
+        </div>
+      )}
 
-      <div className="ctrl">
-        <label>Quintal / área externa</label>
-        <select value={state.quintal} onChange={(e) => onChange({ quintal: e.target.value })}>
-          <option value="todos">Indiferente</option>
-          <option value="sim">Com quintal / área externa</option>
-        </select>
-      </div>
+      {filtrosVisiveis.quintal && (
+        <div className="ctrl">
+          <label>Quintal / área externa</label>
+          <select value={state.quintal} onChange={(e) => onChange({ quintal: e.target.value })}>
+            <option value="todos">Indiferente</option>
+            <option value="sim">Com quintal / área externa</option>
+          </select>
+        </div>
+      )}
 
-      <div className="ctrl">
-        <label>Aceita pet</label>
-        <select value={state.pet} onChange={(e) => onChange({ pet: e.target.value })}>
-          <option value="todos">Indiferente</option>
-          <option value="sim">Aceita pet</option>
-        </select>
-      </div>
+      {filtrosVisiveis.pet && (
+        <div className="ctrl">
+          <label>Aceita pet</label>
+          <select value={state.pet} onChange={(e) => onChange({ pet: e.target.value })}>
+            <option value="todos">Indiferente</option>
+            <option value="sim">Aceita pet</option>
+          </select>
+        </div>
+      )}
 
-      <div className="ctrl">
-        <label>Entrar em contato</label>
-        <select value={state.contato} onChange={(e) => onChange({ contato: e.target.value })}>
-          <option value="todos">Indiferente</option>
-          <option value="sim">Só com pendência de contato</option>
-        </select>
-      </div>
+      {filtrosVisiveis.contato && (
+        <div className="ctrl">
+          <label>Entrar em contato</label>
+          <select value={state.contato} onChange={(e) => onChange({ contato: e.target.value })}>
+            <option value="todos">Indiferente</option>
+            <option value="sim">Só com pendência de contato</option>
+          </select>
+        </div>
+      )}
 
       <div className="ctrl">
         <label>Custo mensal até (R$)</label>

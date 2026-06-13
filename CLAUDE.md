@@ -71,5 +71,16 @@ Postgres (docker/init.sql)  →  PostgREST :3000  →  src/data.ts (fetch)  → 
   No filtro "todos", imóveis `inviabilizado` são **ocultados** (ver `filtra()`).
 - Valores monetários: sempre `brl()` (em `data.ts`). Custo mensal = `aluguel + condominio + iptu`.
 - WhatsApp: `salvarWhatsapp` grava só dígitos; `linkWhatsapp` monta o `wa.me`. Número deve incluir DDI.
-- A chave do OpenRouter precisa do prefixo **`VITE_`** para chegar ao client via `import.meta.env`.
-  O `.env` está no `.gitignore` — não commitar.
+- Variáveis de env do LLM (`VITE_LLM_API_KEY`, `VITE_LLM_ENDPOINT`, `VITE_LLM_MODEL`) precisam
+  do prefixo `VITE_` para chegar ao client. O `.env` está no `.gitignore` — não commitar.
+  `VITE_LLM_ENDPOINT` e `VITE_LLM_MODEL` têm fallback definido em `openrouter.ts`.
+
+## Rankings
+
+- Configurações de ranking ficam em `public/prompts/ranking-*.json` (carregados em runtime via
+  `fetch`). Cada arquivo tem: `titulo`/`descricao` (UI, em pt-BR) + `prompt`/`promptTemplate`
+  (instrução ao LLM, **sempre em inglês**).
+- **`src/rankings.ts`** carrega o JSON e chama `enviarChat`. **`src/rankingParse.ts`** parseia
+  a resposta Markdown do LLM em objetos estruturados.
+- Convenção de idioma: todos os prompts enviados ao LLM são em inglês; o LLM responde em pt-BR.
+  Nunca traduzir as instruções dos arquivos `.json` em `public/prompts/`.

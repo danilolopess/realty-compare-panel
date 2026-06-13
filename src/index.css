@@ -223,6 +223,8 @@ select,input[type=text]{padding:8px 10px;border:1px solid #ccc;border-radius:8px
 .imoveis-page{max-width:900px;margin:0 auto}
 .imoveis-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;gap:12px;flex-wrap:wrap}
 .imoveis-titulo{font-size:1.1rem;color:var(--azul);font-weight:700;margin-bottom:4px}
+.imoveis-busca{flex:1;min-width:180px;max-width:300px;padding:7px 11px;border:1.5px solid var(--cinza);border-radius:7px;font-size:.85rem;background:#fff;outline:none;transition:border-color .15s}
+.imoveis-busca:focus{border-color:var(--azul)}
 .imoveis-tabela{width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.06)}
 .imoveis-tabela th{background:var(--azul);color:#fff;font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;padding:10px 12px;text-align:left;font-weight:600}
 .imoveis-tabela td{padding:9px 12px;font-size:.85rem;border-bottom:1px solid var(--cinza);vertical-align:middle}
@@ -261,9 +263,13 @@ select,input[type=text]{padding:8px 10px;border:1px solid #ccc;border-radius:8px
 .imoveis-acao-btn:hover{background:#f0ede6}
 .imoveis-acao-btn.excluir:hover{background:var(--laranja-bg)}
 .imoveis-acao-btn.editar:hover{background:#e8f0fe}
-/* Confirmação inline de exclusão */
-.imoveis-confirm-row td{background:#fffaf0 !important;border-bottom:1px solid var(--cinza)}
-.imoveis-confirm-inline{display:flex;align-items:center;gap:10px;font-size:.85rem;font-weight:600;color:#8a6d00}
+/* Popover de confirmação de exclusão */
+.excluir-popover{position:fixed;z-index:200;background:#fff;border:1px solid #e0d8cc;border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.18);padding:14px 16px;min-width:220px;max-width:280px}
+.excluir-popover-msg{margin:0 0 2px;font-size:.85rem;font-weight:600;color:#1a1a1a;line-height:1.4}
+.excluir-popover-aviso{margin:0 0 12px;font-size:.75rem;color:#c0392b}
+.excluir-popover-acoes{display:flex;gap:8px;justify-content:flex-end}
+.excluir-popover-btn-sec{background:#e8e4dc;color:#333}
+.excluir-popover-btn-sec:hover{background:#d8d4cc}
 .th-sort{cursor:pointer;user-select:none;white-space:nowrap;transition:background .12s}
 .th-sort:hover{background:#2d4d82}
 .th-sort:active,.th-sort-ativo{background:#395d99 !important}

@@ -317,6 +317,7 @@ export default function AdicionarImovelForm({ onCancelar, onCriado }: Props) {
                   className="add-imovel-textarea add-imovel-textarea--lote"
                   placeholder={`Descreva um ou mais imóveis em linguagem natural. Para múltiplos, separe-os com uma linha em branco, ---, === ou qualquer divisor claro.\n\nExemplo:\nApartamento no centro, 2 quartos, 1 vaga, R$ 900/mês\n\n---\n\nCasa no bairro X, 3 quartos, sem garagem, R$ 1.200/mês`}
                   value={descricao}
+                  maxLength={50000}
                   onChange={(e) => setDescricao(e.target.value)}
                   rows={12}
                 />

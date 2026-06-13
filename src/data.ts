@@ -66,7 +66,10 @@ function toImovel(r: DbRow): Imovel {
     tipo: r.tipo_imovel,
     corretor: r.imobiliaria_corretor,
     bairro: r.bairro,
-    cidade: r.cidade,
+    cidade: r.cidade
+      .split(' ')
+      .map((p) => p.charAt(0).toUpperCase() + p.slice(1))
+      .join(' '),
     op: r.operacao,
     aluguel: r.aluguel,
     venda: r.venda,
@@ -94,12 +97,40 @@ function toImovel(r: DbRow): Imovel {
   }
 }
 
+// Detecta imóveis com IPTU estimado desatualizado e sincroniza com o valor atual do .env.
+// Chamado a cada fetchImoveis(); só emite PATCHes quando há divergência.
+async function sincronizarIptuEstimado(rows: DbRow[]): Promise<DbRow[]> {
+  const desatualizados = rows.filter(
+    (r) => r.iptu_estimado && r.iptu !== IPTU_ESTIMADO_PADRAO,
+  )
+  if (!desatualizados.length) return rows
+
+  await Promise.all(
+    desatualizados.map((r) =>
+      fetch(`${API}/imoveis?id=eq.${r.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          iptu: IPTU_ESTIMADO_PADRAO,
+          custo_mensal_total: r.aluguel + r.condominio + IPTU_ESTIMADO_PADRAO,
+        }),
+      }),
+    ),
+  )
+
+  return rows.map((r) => {
+    if (!r.iptu_estimado || r.iptu === IPTU_ESTIMADO_PADRAO) return r
+    return { ...r, iptu: IPTU_ESTIMADO_PADRAO, custo_mensal_total: r.aluguel + r.condominio + IPTU_ESTIMADO_PADRAO }
+  })
+}
+
 export async function fetchImoveis(): Promise<Imovel[]> {
   const res = await fetch(`${API}/imoveis?order=id`)
   const rows: DbRow[] = await res.json()
+  const rowsSinc = await sincronizarIptuEstimado(rows)
   rowsById.clear()
-  rows.forEach((r) => rowsById.set(r.id, r))
-  return rows.map(toImovel)
+  rowsSinc.forEach((r) => rowsById.set(r.id, r))
+  return rowsSinc.map(toImovel)
 }
 
 export interface ImoveisJson {
@@ -190,6 +221,14 @@ export function tempoRelativo(iso: string): string {
 // Lista de bairros únicos presentes na lista, ordenados alfabeticamente.
 export function bairrosDe(lista: Imovel[]): string[] {
   return [...new Set(lista.map((i) => i.bairro))].sort((a, b) => a.localeCompare(b, 'pt-BR'))
+}
+
+export function tiposDe(lista: Imovel[]): string[] {
+  return [...new Set(lista.map((i) => i.tipo))].sort((a, b) => a.localeCompare(b, 'pt-BR'))
+}
+
+export function cidadesDe(lista: Imovel[]): string[] {
+  return [...new Set(lista.map((i) => i.cidade))].sort((a, b) => a.localeCompare(b, 'pt-BR'))
 }
 
 // Formatação em Real (mesma do HTML original)

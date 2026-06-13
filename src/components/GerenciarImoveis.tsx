@@ -20,14 +20,33 @@ export default function GerenciarImoveis({ view, onViewChange: setView }: Props)
   const [modo, setModo] = useState<Modo>('idle')
   const [operando, setOperando] = useState(false)
   const [erroOperacao, setErroOperacao] = useState<string | null>(null)
-  const [excluindoId, setExcluindoId] = useState<number | null>(null)
+  const [popoverExcluir, setPopoverExcluir] = useState<{
+    id: number
+    bairro: string
+    top: number
+    right: number
+  } | null>(null)
   const [editandoId, setEditandoId] = useState<number | null>(null)
   const [sortCol, setSortCol] = useState<string | null>(null)
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
+  const [busca, setBusca] = useState('')
   const headerCheckRef = useRef<HTMLInputElement>(null)
 
-  const todosSelecionados = imoveis.length > 0 && imoveis.every((i) => selecionados.has(i.n))
-  const algunsSelecionados = !todosSelecionados && imoveis.some((i) => selecionados.has(i.n))
+  const imoveisFiltrados = busca.trim()
+    ? imoveis.filter((i) => {
+        const q = busca.toLowerCase()
+        return (
+          String(i.n).includes(q) ||
+          (i.tipo?.toLowerCase().includes(q) ?? false) ||
+          (i.bairro?.toLowerCase().includes(q) ?? false) ||
+          (i.cidade?.toLowerCase().includes(q) ?? false) ||
+          (i.op?.toLowerCase().includes(q) ?? false)
+        )
+      })
+    : imoveis
+
+  const todosSelecionados = imoveisFiltrados.length > 0 && imoveisFiltrados.every((i) => selecionados.has(i.n))
+  const algunsSelecionados = !todosSelecionados && imoveisFiltrados.some((i) => selecionados.has(i.n))
 
   useEffect(() => {
     fetchImoveis().then((data) => {
@@ -55,7 +74,7 @@ export default function GerenciarImoveis({ view, onViewChange: setView }: Props)
     if (todosSelecionados) {
       setSelecionados(new Set())
     } else {
-      setSelecionados(new Set(imoveis.map((i) => i.n)))
+      setSelecionados(new Set(imoveisFiltrados.map((i) => i.n)))
     }
   }
 
@@ -89,6 +108,7 @@ export default function GerenciarImoveis({ view, onViewChange: setView }: Props)
   }
 
   async function excluirUm(id: number) {
+    setPopoverExcluir(null)
     setErroOperacao(null)
     try {
       await excluirImoveis([id])
@@ -98,8 +118,6 @@ export default function GerenciarImoveis({ view, onViewChange: setView }: Props)
       setImoveis(updated)
     } catch (e) {
       setErroOperacao(e instanceof Error ? e.message : 'Erro ao excluir imóvel.')
-    } finally {
-      setExcluindoId(null)
     }
   }
 
@@ -115,7 +133,7 @@ export default function GerenciarImoveis({ view, onViewChange: setView }: Props)
   }
 
   const lista: Imovel[] = sortCol
-    ? [...imoveis].sort((a, b) => {
+    ? [...imoveisFiltrados].sort((a, b) => {
         let va: string | number | null | undefined
         let vb: string | number | null | undefined
         if (sortCol === 'n')        { va = a.n;      vb = b.n }
@@ -132,7 +150,7 @@ export default function GerenciarImoveis({ view, onViewChange: setView }: Props)
             : String(va).localeCompare(String(vb), 'pt-BR')
         return sortDir === 'asc' ? cmp : -cmp
       })
-    : imoveis
+    : imoveisFiltrados
 
   function ThSort({ col, label }: { col: string; label: string }) {
     const ativo = sortCol === col
@@ -172,10 +190,19 @@ export default function GerenciarImoveis({ view, onViewChange: setView }: Props)
           <div className="imoveis-titulo">Imóveis cadastrados</div>
           {!loading && (
             <p className="sub" style={{ margin: 0 }}>
-              {imoveis.length} {imoveis.length === 1 ? 'registro' : 'registros'}
+              {busca.trim() && imoveisFiltrados.length !== imoveis.length
+                ? `${imoveisFiltrados.length} de ${imoveis.length} registros`
+                : `${imoveis.length} ${imoveis.length === 1 ? 'registro' : 'registros'}`}
             </p>
           )}
         </div>
+        <input
+          className="imoveis-busca"
+          type="text"
+          placeholder="Buscar por tipo, bairro, cidade..."
+          value={busca}
+          onChange={(e) => setBusca(e.target.value)}
+        />
         <button className="btn btn-adicionar" onClick={() => setView('adicionar')}>
           + Adicionar imóvel
         </button>
@@ -248,63 +275,86 @@ export default function GerenciarImoveis({ view, onViewChange: setView }: Props)
             </tr>
           </thead>
           <tbody>
-            {lista.map((i) =>
-              excluindoId === i.n ? (
-                <tr key={i.n} className="imoveis-confirm-row">
-                  <td colSpan={8} className="imoveis-confirm-inline">
-                    <span>Excluir imóvel #{i.n} ({i.bairro})? Irreversível.</span>
-                    <button className="btn" style={{ background: '#888' }} onClick={() => setExcluindoId(null)}>
-                      Cancelar
-                    </button>
-                    <button className="btn imoveis-barra-btn-perigo" onClick={() => excluirUm(i.n)}>
-                      Confirmar
-                    </button>
-                  </td>
-                </tr>
-              ) : (
-                <tr
-                  key={i.n}
-                  className={selecionados.has(i.n) ? 'selecionada' : undefined}
-                  onClick={() => toggleSelecionado(i.n)}
-                >
-                  <td className="td-check" onClick={(e) => e.stopPropagation()}>
-                    <input
-                      type="checkbox"
-                      checked={selecionados.has(i.n)}
-                      onChange={() => toggleSelecionado(i.n)}
-                    />
-                  </td>
-                  <td className="td-id">{i.n}</td>
-                  <td>{i.tipo}</td>
-                  <td>{i.bairro}</td>
-                  <td>{i.cidade}</td>
-                  <td className="td-custo">
-                    {i.custo != null ? brl(i.custo) : <span style={{ color: '#aaa' }}>—</span>}
-                  </td>
-                  <td>{i.op}</td>
-                  <td className="td-acoes" onClick={(e) => e.stopPropagation()}>
-                    <button
-                      className="imoveis-acao-btn editar"
-                      title="Editar"
-                      onClick={() => setEditandoId(i.n)}
-                    >
-                      ✏️
-                    </button>
-                    <button
-                      className="imoveis-acao-btn excluir"
-                      title="Excluir"
-                      onClick={() => setExcluindoId(i.n)}
-                    >
-                      🗑️
-                    </button>
-                  </td>
-                </tr>
-              ),
-            )}
+            {lista.map((i) => (
+              <tr
+                key={i.n}
+                className={selecionados.has(i.n) ? 'selecionada' : undefined}
+                onClick={() => toggleSelecionado(i.n)}
+              >
+                <td className="td-check" onClick={(e) => e.stopPropagation()}>
+                  <input
+                    type="checkbox"
+                    checked={selecionados.has(i.n)}
+                    onChange={() => toggleSelecionado(i.n)}
+                  />
+                </td>
+                <td className="td-id">{i.n}</td>
+                <td>{i.tipo}</td>
+                <td>{i.bairro}</td>
+                <td>{i.cidade}</td>
+                <td className="td-custo">
+                  {i.custo != null ? brl(i.custo) : <span style={{ color: '#aaa' }}>—</span>}
+                </td>
+                <td>{i.op}</td>
+                <td className="td-acoes" onClick={(e) => e.stopPropagation()}>
+                  <button
+                    className="imoveis-acao-btn editar"
+                    title="Editar"
+                    onClick={() => setEditandoId(i.n)}
+                  >
+                    ✏️
+                  </button>
+                  <button
+                    className="imoveis-acao-btn excluir"
+                    title="Excluir"
+                    onClick={(e) => {
+                      const rect = e.currentTarget.getBoundingClientRect()
+                      setPopoverExcluir({
+                        id: i.n,
+                        bairro: i.bairro,
+                        top: rect.bottom + 6,
+                        right: window.innerWidth - rect.right,
+                      })
+                    }}
+                  >
+                    🗑️
+                  </button>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       )}
     </div>
+
+    {popoverExcluir && (
+      <>
+        <div
+          style={{ position: 'fixed', inset: 0, zIndex: 199 }}
+          onClick={() => setPopoverExcluir(null)}
+        />
+        <div
+          className="excluir-popover"
+          style={{ top: popoverExcluir.top, right: popoverExcluir.right }}
+        >
+          <p className="excluir-popover-msg">
+            Excluir imóvel #{popoverExcluir.id} ({popoverExcluir.bairro})?
+          </p>
+          <p className="excluir-popover-aviso">Esta ação é irreversível.</p>
+          <div className="excluir-popover-acoes">
+            <button className="btn excluir-popover-btn-sec" onClick={() => setPopoverExcluir(null)}>
+              Cancelar
+            </button>
+            <button
+              className="btn imoveis-barra-btn-perigo"
+              onClick={() => excluirUm(popoverExcluir.id)}
+            >
+              Confirmar
+            </button>
+          </div>
+        </div>
+      </>
+    )}
 
     {editandoId !== null && imovelParaEditar && (
       <EditarImovelModal
