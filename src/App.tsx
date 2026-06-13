@@ -3,11 +3,14 @@ import Painel from './components/Painel'
 import Chat from './components/Chat'
 import Workflow from './components/Workflow'
 import Rankings from './components/Rankings'
+import GerenciarImoveis from './components/GerenciarImoveis'
+import type { ImovelView } from './components/GerenciarImoveis'
 
-type Aba = 'painel' | 'favoritos' | 'workflow' | 'rankings' | 'chat'
+type Aba = 'painel' | 'imoveis' | 'favoritos' | 'workflow' | 'rankings' | 'chat'
 
 export default function App() {
   const [aba, setAba] = useState<Aba>('painel')
+  const [imovelView, setImovelView] = useState<ImovelView>('lista')
 
   return (
     <>
@@ -17,6 +20,12 @@ export default function App() {
           onClick={() => setAba('painel')}
         >
           Painel
+        </button>
+        <button
+          className={`tab ${aba === 'imoveis' ? 'active' : ''}`}
+          onClick={() => { setAba('imoveis'); setImovelView('lista') }}
+        >
+          Imóveis
         </button>
         <button
           className={`tab ${aba === 'favoritos' ? 'active' : ''}`}
@@ -44,7 +53,15 @@ export default function App() {
         </button>
       </nav>
 
-      {aba === 'painel' && <Painel key="painel" />}
+      {aba === 'painel' && (
+        <Painel
+          key="painel"
+          onAdicionar={() => { setAba('imoveis'); setImovelView('adicionar') }}
+        />
+      )}
+      {aba === 'imoveis' && (
+        <GerenciarImoveis view={imovelView} onViewChange={setImovelView} />
+      )}
       {aba === 'favoritos' && <Painel key="favoritos" somenteFavoritos />}
       {aba === 'workflow' && <Workflow />}
       {aba === 'rankings' && <Rankings />}

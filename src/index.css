@@ -146,6 +146,10 @@ select,input[type=text]{padding:8px 10px;border:1px solid #ccc;border-radius:8px
 @keyframes loader-dot{0%,80%,100%{opacity:.25;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}
 .btn-loading{display:inline-flex;align-items:center;gap:4px}
 .chat-erro{background:var(--laranja-bg);color:var(--laranja);padding:10px 14px;border-radius:8px;font-size:.85rem;flex-shrink:0}
+.chat-sugestoes{display:flex;flex-wrap:wrap;gap:6px;align-items:center;flex-shrink:0}
+.chat-sugestoes-label{font-size:.73rem;color:#bbb;margin-right:2px;white-space:nowrap;user-select:none}
+.chat-sugestao-chip{background:#f5f6f8;color:#888;border:1px solid #e5e7eb;border-radius:20px;padding:4px 12px;font-size:.78rem;cursor:pointer;transition:.15s;font-family:inherit;line-height:1.5}
+.chat-sugestao-chip:hover{background:#eaedf2;border-color:#c8ccd4;color:#555}
 .chat-entrada{display:flex;gap:10px;align-items:flex-end;flex-shrink:0}
 .chat-entrada textarea{flex:1;padding:10px 12px;border:1px solid #ccc;border-radius:10px;font-size:.9rem;font-family:inherit;resize:vertical;background:#fff}
 .btn-enviar{padding:11px 20px}
@@ -161,6 +165,112 @@ select,input[type=text]{padding:8px 10px;border:1px solid #ccc;border-radius:8px
   .chat-sidebar{height:auto}
   .chat-mensagens{min-height:300px;flex:none;max-height:60vh}
   .chat-sessao-acoes{opacity:1}
+}
+
+/* ===== Modal Adicionar Imóvel ===== */
+.toolbar{display:flex;justify-content:flex-end;align-items:center;gap:10px;margin-bottom:14px}
+.btn-adicionar{background:var(--verde) !important}
+.btn-adicionar:hover:not(:disabled){background:#1b5e20 !important}
+.add-imovel-modal{background:#fff;border-radius:12px;padding:24px;display:flex;flex-direction:column;gap:14px;width:100%;max-width:680px}
+.add-imovel-titulo{font-size:1.1rem;color:var(--azul);font-weight:700}
+.add-imovel-label{font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;color:#777;font-weight:600}
+.add-imovel-textarea{padding:10px 12px;border:1px solid #ccc;border-radius:10px;font-size:.9rem;font-family:inherit;resize:vertical;min-height:80px;width:100%;background:#fff;transition:.15s}
+.add-imovel-textarea:focus{outline:none;border-color:var(--azul2)}
+.add-imovel-textarea:disabled{background:#f5f5f5;color:#999}
+.add-imovel-tentativa{font-size:.82rem;color:#8a6d00;font-style:italic}
+.add-imovel-erro{background:var(--laranja-bg);color:var(--laranja);padding:10px 14px;border-radius:8px;font-size:.85rem}
+.add-imovel-aviso-link{background:var(--amarelo-bg);color:#8a6d00;padding:10px 14px;border-radius:8px;font-size:.85rem;font-weight:600;border-left:3px solid #dcb53a}
+.add-imovel-textarea--lote{min-height:220px;resize:vertical}
+.add-imovel-label-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.add-imovel-nav{display:flex;align-items:center;justify-content:space-between;background:#f0f2f7;border-radius:8px;padding:8px 14px;margin-bottom:14px;gap:12px}
+.add-imovel-nav-btn{background:none;border:1px solid var(--azul2);color:var(--azul2);border-radius:6px;padding:5px 14px;font-size:.85rem;font-weight:600;cursor:pointer;transition:.15s}
+.add-imovel-nav-btn:hover:not(:disabled){background:var(--azul2);color:#fff}
+.add-imovel-nav-btn:disabled{opacity:.35;cursor:not-allowed}
+.add-imovel-nav-contador{font-size:.88rem;font-weight:700;color:var(--azul);flex:1;text-align:center}
+.add-imovel-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:4px}
+.add-imovel-form{display:flex;flex-direction:column;gap:0;max-height:60vh;overflow-y:auto;padding-right:4px}
+.add-imovel-secao{display:flex;flex-direction:column;gap:8px;border-top:1px dashed #e2e2e2;padding:12px 0}
+.add-imovel-secao:first-child{border-top:none;padding-top:0}
+.add-imovel-secao-titulo{font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;color:#999;font-weight:700;margin-bottom:2px}
+.add-imovel-row{display:flex;gap:10px;flex-wrap:wrap}
+.add-imovel-field{display:flex;flex-direction:column;gap:4px;flex:1 1 130px;min-width:0}
+.add-imovel-field--full{flex:1 1 100%}
+.add-imovel-field--check{flex:0 0 auto;justify-content:center}
+.add-imovel-field label{font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;color:#777;font-weight:600}
+.add-imovel-field input[type=text],.add-imovel-field input[type=number],.add-imovel-field select{padding:7px 9px;border:1px solid #ccc;border-radius:8px;font-size:.85rem;background:#fff;width:100%}
+.add-imovel-field input[type=checkbox]{width:18px;height:18px;margin-top:2px;cursor:pointer}
+@media(max-width:820px){
+  .add-imovel-row{flex-direction:column}
+  .add-imovel-field{flex:1 1 auto}
+}
+
+/* Skeleton de loading do formulário de adição */
+.add-imovel-skeleton{display:flex;flex-direction:column;gap:14px}
+.add-imovel-sk-status{display:flex;align-items:center;gap:8px;background:var(--amarelo-bg);border:1px solid #e8d48a;border-radius:10px;padding:12px 16px;color:#8a6d00}
+.add-imovel-sk-icon{font-size:1.2rem;flex-shrink:0}
+.add-imovel-sk-texto{font-size:.88rem;font-weight:600;flex:1}
+.add-imovel-sk-secoes{display:flex;flex-direction:column;gap:0}
+/* Campos do skeleton: altura de input real, flex para preencher a linha */
+.add-imovel-sk-campo{height:34px !important;border-radius:8px;flex:1;min-width:80px}
+/* Delays escalonados para cada linha animar em fases diferentes */
+.add-imovel-sk-d2{animation-delay:.15s}
+.add-imovel-sk-d3{animation-delay:.30s}
+.add-imovel-sk-d4{animation-delay:.45s}
+.add-imovel-sk-d5{animation-delay:.60s}
+.add-imovel-sk-d6{animation-delay:.75s}
+
+/* ===== Aba Imóveis (GerenciarImoveis) ===== */
+.imoveis-page{max-width:900px;margin:0 auto}
+.imoveis-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;gap:12px;flex-wrap:wrap}
+.imoveis-titulo{font-size:1.1rem;color:var(--azul);font-weight:700;margin-bottom:4px}
+.imoveis-tabela{width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.imoveis-tabela th{background:var(--azul);color:#fff;font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;padding:10px 12px;text-align:left;font-weight:600}
+.imoveis-tabela td{padding:9px 12px;font-size:.85rem;border-bottom:1px solid var(--cinza);vertical-align:middle}
+.imoveis-tabela tr:last-child td{border-bottom:none}
+.imoveis-tabela tr:hover td{background:#f9f8f5}
+.td-id{color:#999;font-size:.78rem}
+.td-custo{font-weight:700;color:var(--wine)}
+.td-status-nao_analisado{color:#888}
+.td-status-aguardando{color:#8a6d00;font-weight:600}
+.td-status-inviabilizado{color:var(--laranja);font-weight:600}
+.imoveis-breadcrumb{display:flex;align-items:center;gap:8px;margin-bottom:18px}
+.imoveis-breadcrumb-btn{background:none;border:none;color:var(--azul2);font-size:.9rem;cursor:pointer;padding:0;font-weight:600;text-decoration:underline}
+.imoveis-breadcrumb-btn:hover{color:var(--azul)}
+.imoveis-breadcrumb-sep{color:#bbb;font-size:.85rem}
+.imoveis-breadcrumb-atual{color:#888;font-size:.85rem}
+/* Seleção em massa */
+.th-check,.td-check{width:36px;padding:9px 8px !important;text-align:center}
+.imoveis-tabela input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:var(--azul)}
+.imoveis-tabela tbody tr{cursor:pointer}
+.imoveis-tabela tbody td{background:#fff}
+.imoveis-tabela tbody tr:hover td,.imoveis-tabela tbody tr:active td{background:#f9f8f5}
+.imoveis-tabela tr.selecionada td{background:#eef2fb}
+.imoveis-tabela tr.selecionada:hover td,.imoveis-tabela tr.selecionada:active td{background:#e4ebf7}
+.imoveis-barra-massa{display:flex;align-items:center;gap:10px;background:var(--azul);color:#fff;border-radius:8px;padding:10px 16px;margin-bottom:12px;font-size:.88rem;font-weight:600;flex-wrap:wrap}
+.imoveis-barra-massa-count{flex:1;min-width:0}
+.imoveis-barra-btn-sec{background:rgba(255,255,255,.15) !important;border:1px solid rgba(255,255,255,.3) !important}
+.imoveis-barra-btn-sec:hover:not(:disabled){background:rgba(255,255,255,.28) !important}
+.imoveis-barra-btn-perigo{background:#c0392b !important}
+.imoveis-barra-btn-perigo:hover:not(:disabled){background:#a93226 !important}
+.imoveis-barra-select{padding:6px 9px;border:1px solid rgba(255,255,255,.4);border-radius:7px;font-size:.85rem;background:rgba(255,255,255,.92);color:var(--azul);font-weight:600;cursor:pointer;min-width:140px}
+.imoveis-barra-erro{background:var(--laranja-bg);color:var(--laranja);border-radius:8px;padding:9px 14px;font-size:.85rem;margin-bottom:10px}
+/* Coluna Ações */
+.th-acoes{width:72px;text-align:center}
+.td-acoes{width:72px;text-align:center;white-space:nowrap}
+.imoveis-acao-btn{background:none;border:none;cursor:pointer;font-size:1rem;padding:4px 5px;border-radius:5px;line-height:1;transition:.15s}
+.imoveis-acao-btn:hover{background:#f0ede6}
+.imoveis-acao-btn.excluir:hover{background:var(--laranja-bg)}
+.imoveis-acao-btn.editar:hover{background:#e8f0fe}
+/* Confirmação inline de exclusão */
+.imoveis-confirm-row td{background:#fffaf0 !important;border-bottom:1px solid var(--cinza)}
+.imoveis-confirm-inline{display:flex;align-items:center;gap:10px;font-size:.85rem;font-weight:600;color:#8a6d00}
+.th-sort{cursor:pointer;user-select:none;white-space:nowrap;transition:background .12s}
+.th-sort:hover{background:#2d4d82}
+.th-sort:active,.th-sort-ativo{background:#395d99 !important}
+.th-sort-icon{opacity:.55;font-size:.78em;margin-left:3px}
+.th-sort-ativo .th-sort-icon{opacity:1}
+@media(max-width:820px){
+  .imoveis-tabela th:nth-child(6),.imoveis-tabela td:nth-child(6){display:none}
 }
 
 /* ===== Workflow / Flow (Kanban) ===== */
@@ -197,19 +307,21 @@ select,input[type=text]{padding:8px 10px;border:1px solid #ccc;border-radius:8px
 .flow-vermais{margin-left:auto;padding:5px 12px;border:1px solid #d6d2c8;border-radius:5px;background:#fff;font-size:.78rem;font-weight:600;color:var(--azul);cursor:pointer;transition:.15s}
 .flow-vermais:hover{background:var(--azul);color:#fff;border-color:var(--azul)}
 
-/* Modal (Ver mais) */
+/* Modal (genérico + ver mais) */
 .modal-overlay{position:fixed;inset:0;background:rgba(20,20,25,.5);display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto;z-index:100}
 .modal-box{position:relative;width:100%;max-width:720px;margin:auto 0}
 .modal-close{position:absolute;top:-14px;right:-14px;width:32px;height:32px;border:none;border-radius:50%;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.25);font-size:.95rem;cursor:pointer;color:#444;z-index:1}
 .modal-close:hover{background:#f0f0f0}
+.modal-titulo{font-size:1.05rem;color:var(--azul);font-weight:700;padding:16px 24px 12px;border-bottom:1px solid var(--cinza)}
 
 @media (max-width:820px){
   .flow-board{flex-direction:column}
 }
 
 /* ===== Rankings ===== */
-.rankings-page{max-width:900px;margin:0 auto}
-.rankings-grid{display:flex;flex-direction:column;gap:24px;margin-top:24px}
+.rankings-page{max-width:1200px;margin:0 auto}
+.rankings-grid{display:grid;grid-template-columns:1fr;gap:24px;margin-top:24px}
+@media(min-width:800px){.rankings-grid{grid-template-columns:repeat(2,1fr)}}
 
 .ranking-card{background:#fff;border-radius:14px;padding:24px;box-shadow:0 3px 14px rgba(0,0,0,.07);border-top:4px solid var(--azul2)}
 

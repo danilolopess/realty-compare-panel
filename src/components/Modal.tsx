@@ -1,28 +1,34 @@
-import { useEffect, type ReactNode } from 'react'
+import { useEffect } from 'react'
+import { createPortal } from 'react-dom'
 
 interface Props {
-  onClose: () => void
-  children: ReactNode
+  titulo?: string
+  onFechar: () => void
+  children: React.ReactNode
 }
 
-// Modal simples (sem libs): overlay com fechar por Esc, clique no fundo ou no ✕.
-export default function Modal({ onClose, children }: Props) {
+export default function Modal({ titulo, onFechar, children }: Props) {
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') onFechar()
     }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [onClose])
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [onFechar])
 
-  return (
-    <div className="modal-overlay" onClick={onClose}>
+  const root = document.getElementById('modal-root')
+  if (!root) return null
+
+  return createPortal(
+    <div className="modal-overlay" onClick={onFechar}>
       <div className="modal-box" onClick={(e) => e.stopPropagation()}>
-        <button className="modal-close" onClick={onClose} aria-label="Fechar">
+        <button className="modal-close" onClick={onFechar} aria-label="Fechar">
           ✕
         </button>
+        {titulo && <div className="modal-titulo">{titulo}</div>}
         {children}
       </div>
-    </div>
+    </div>,
+    root,
   )
 }

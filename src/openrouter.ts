@@ -167,6 +167,15 @@ export async function* enviarChatStream(
   yield* chamarLLMStream(modelo, messages)
 }
 
+// Chama o LLM diretamente com as mensagens fornecidas, sem injetar system prompt.
+// Útil para tarefas de extração/conversão que não precisam do contexto dos imóveis.
+export async function chamarLLMDireto(
+  messages: ChatMessage[],
+  modelo: string = MODELO_PADRAO,
+): Promise<string> {
+  return chamarLLM(modelo, messages)
+}
+
 // Gera um título curto para a conversa. SEMPRE usa MODELO_AUTO
 // (gemini-3.1-flash-lite), independente do modelo do chat.
 export async function gerarTitulo(historico: ChatMessage[]): Promise<string> {

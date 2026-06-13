@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { IPTU_ESTIMADO_PADRAO } from '../data'
 import type { Imovel, StatusImovel } from '../types'
 
 // Rótulos de status compartilhados entre o Painel (Card) e o Workflow (Kanban).
@@ -27,6 +28,6 @@ export function montaFeats(i: Imovel): ReactNode[] {
   if (i.quintal) feats.push(<span key="qt" className="feat ok">🌳 quintal / área externa</span>)
   if (i.pet) feats.push(<span key="p" className="feat ok">🐾 aceita pet</span>)
   if (i.noPet) feats.push(<span key="np" className="feat no">🚫 NÃO aceita pet</span>)
-  if (i.iptuEst) feats.push(<span key="iptu" className="feat est">IPTU est. R$80</span>)
+  if (i.iptuEst) feats.push(<span key="iptu" className="feat est">IPTU est. R${IPTU_ESTIMADO_PADRAO}</span>)
   return feats
 }

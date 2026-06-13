@@ -103,7 +103,7 @@ export default function Workflow() {
       </DndContext>
 
       {selecionado && (
-        <Modal onClose={() => setVerMaisId(null)}>
+        <Modal onFechar={() => setVerMaisId(null)}>
           <Card
             imovel={selecionado}
             onWhatsapp={onWhatsapp}

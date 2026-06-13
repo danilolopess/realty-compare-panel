@@ -117,7 +117,7 @@ export default function Rankings() {
         const im = imoveis.find((x) => x.n === modalImovelId)
         if (!im) return null
         return (
-          <Modal onClose={fecharModal}>
+          <Modal onFechar={fecharModal}>
             <Card imovel={im} onWhatsapp={onWhatsapp} onStatus={onStatus} onNotas={onNotas} onFavorito={onFavorito} />
           </Modal>
         )

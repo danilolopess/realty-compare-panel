@@ -8,6 +8,7 @@ import {
   bairrosDe,
   fetchImoveis,
   filtra,
+  IPTU_ESTIMADO_PADRAO,
   salvarFavorito,
   salvarNotas,
   salvarStatus,
@@ -29,7 +30,13 @@ const estadoInicial: FilterState = {
   status: 'todos',
 }
 
-export default function Painel({ somenteFavoritos = false }: { somenteFavoritos?: boolean }) {
+export default function Painel({
+  somenteFavoritos = false,
+  onAdicionar,
+}: {
+  somenteFavoritos?: boolean
+  onAdicionar?: () => void
+}) {
   const [imoveis, setImoveis] = useState<Imovel[]>([])
   const [loading, setLoading] = useState(true)
   const [state, setState] = useState<FilterState>(estadoInicial)
@@ -92,7 +99,7 @@ export default function Painel({ somenteFavoritos = false }: { somenteFavoritos?
         ) : (
           <>
             {imoveis.length} imóveis (Poços de Caldas + São João da Boa Vista/SP) · filtre, ordene e
-            compare. Regra aplicada: IPTU não informado = R$ 80 (estimado).
+            compare. Regra aplicada: IPTU não informado = R$ {IPTU_ESTIMADO_PADRAO} (estimado).
           </>
         )}
       </p>
@@ -104,6 +111,11 @@ export default function Painel({ somenteFavoritos = false }: { somenteFavoritos?
 
         <main className="content">
           <div className="toolbar">
+            {!somenteFavoritos && onAdicionar && (
+              <button className="btn btn-adicionar" onClick={onAdicionar}>
+                + Adicionar imóvel
+              </button>
+            )}
             <button
               className="btn-json"
               onClick={() => baixarImoveisJson(lista)}

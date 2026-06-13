@@ -44,6 +44,17 @@ function extrairIdsImoveis(texto: string): number[] {
   return result
 }
 
+// Sugestões de pergunta exibidas acima do campo em uma conversa nova.
+// Clicar preenche o textarea; somem ao selecionar uma ou ao enviar a 1ª mensagem.
+const SUGESTOES_CHAT: string[] = [
+  'Quais imóveis aceitam pet e têm garagem?',
+  'Quais têm o menor custo mensal total?',
+  'Compare os imóveis com quintal amplo',
+  'Quais são os melhores em custo-benefício?',
+  'Mostre os mais próximos ao centro',
+  'Quais têm garagem para 2 ou mais carros?',
+]
+
 // Chave do sessionStorage onde o JSON de contexto fica guardado.
 const STORAGE_KEY = 'imoveis_chat_json'
 
@@ -395,6 +406,22 @@ export default function Chat() {
         {erroChat && <div className="chat-erro">{erroChat}</div>}
         {erroSalvar && <div className="chat-erro">{erroSalvar}</div>}
 
+        {mensagens.length === 0 && !enviando && !entrada.trim() && (
+          <div className="chat-sugestoes">
+            <span className="chat-sugestoes-label">Sugestões:</span>
+            {SUGESTOES_CHAT.map((s) => (
+              <button
+                key={s}
+                className="chat-sugestao-chip"
+                onClick={() => setEntrada(s)}
+                type="button"
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+        )}
+
         <div className="chat-entrada">
           <textarea
             value={entrada}
@@ -419,7 +446,7 @@ export default function Chat() {
       const im = contexto?.imoveis.find((x) => x.n === modalImovelId)
       if (!im) return null
       return (
-        <Modal onClose={fecharModal}>
+        <Modal onFechar={fecharModal}>
           <Card imovel={im} onWhatsapp={onWhatsapp} onStatus={onStatus} onNotas={onNotas} onFavorito={onFavorito} />
         </Modal>
       )

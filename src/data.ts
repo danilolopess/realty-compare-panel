@@ -9,6 +9,9 @@ import type {
   TipoImovel,
 } from './types'
 
+export const IPTU_ESTIMADO_PADRAO: number =
+  Number(import.meta.env.VITE_IPTU_ESTIMADO) || 80
+
 interface DbRow {
   id: number
   tipo_imovel: TipoImovel
@@ -40,6 +43,8 @@ interface DbRow {
   notas: string | null
   favorito: boolean
 }
+
+export type ImovelInput = Omit<DbRow, 'id'>
 
 export interface RankingSalvo {
   conteudo: string
@@ -377,4 +382,70 @@ export async function salvarRanking(
 export async function deletarRanking(configId: string): Promise<void> {
   const res = await fetch(`${API}/rankings?config_id=eq.${configId}`, { method: 'DELETE' })
   if (!res.ok) throw new Error(`Falha ao excluir ranking (${res.status})`)
+}
+
+// Cria um novo imóvel no banco via PostgREST. O id é gerado pelo SERIAL do banco.
+export async function criarImovel(input: ImovelInput): Promise<void> {
+  const res = await fetch(`${API}/imoveis`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+    body: JSON.stringify(input),
+  })
+  if (!res.ok) {
+    const txt = await res.text().catch(() => '')
+    throw new Error(`Falha ao criar imóvel (${res.status}): ${txt || res.statusText}`)
+  }
+}
+
+export function getImovelInput(id: number): ImovelInput | undefined {
+  const row = rowsById.get(id)
+  if (!row) return undefined
+  const { id: _id, ...input } = row
+  return input
+}
+
+export async function atualizarImovel(id: number, input: ImovelInput): Promise<void> {
+  const res = await fetch(`${API}/imoveis?id=eq.${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...input, custo_mensal_total: input.aluguel + input.condominio + input.iptu }),
+  })
+  if (!res.ok) {
+    const txt = await res.text().catch(() => '')
+    throw new Error(`Falha ao atualizar imóvel (${res.status}): ${txt || res.statusText}`)
+  }
+}
+
+export async function excluirImoveis(ids: number[]): Promise<void> {
+  if (!ids.length) return
+  const res = await fetch(`${API}/imoveis?id=in.(${ids.join(',')})`, { method: 'DELETE' })
+  if (!res.ok) throw new Error(`Falha ao excluir imóveis (${res.status})`)
+}
+
+export async function alterarStatusEmLote(ids: number[], status: StatusImovel): Promise<void> {
+  if (!ids.length) return
+  const res = await fetch(`${API}/imoveis?id=in.(${ids.join(',')})`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status, status_changed_at: new Date().toISOString() }),
+  })
+  if (!res.ok) throw new Error(`Falha ao alterar status em lote (${res.status})`)
+}
+
+async function listarConfigIdsRankings(): Promise<string[]> {
+  const res = await fetch(`${API}/rankings?select=config_id`)
+  if (!res.ok) return []
+  const rows: { config_id: string }[] = await res.json()
+  return rows.map((r) => r.config_id)
+}
+
+// Exclui todos os rankings salvos. Chamado após criar/alterar imóveis.
+// Falha silenciosa: rankings obsoletos não devem bloquear o fluxo principal.
+export async function purgarTodosRankings(): Promise<void> {
+  try {
+    const ids = await listarConfigIdsRankings()
+    await Promise.all(ids.map((id) => deletarRanking(id)))
+  } catch {
+    // silencioso
+  }
 }

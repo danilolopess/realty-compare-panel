@@ -1,5 +1,5 @@
 CREATE TABLE imoveis (
-  id                   INTEGER PRIMARY KEY,
+  id                   SERIAL PRIMARY KEY,
   tipo_imovel          VARCHAR(20),
   imobiliaria_corretor VARCHAR(255),
   bairro               VARCHAR(255),
