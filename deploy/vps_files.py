@@ -11,7 +11,6 @@ import sys
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 VPS_ENV = ROOT / "deploy" / "vps.env"
 SNIPPET = ROOT / "deploy" / "Caddyfile.snippet"
-USER_RE = re.compile(r"[A-Za-z0-9_-]{1,32}")
 HASH_RE = re.compile(r"\$2[aby]\$\d{2}\$[./A-Za-z0-9]+")
 SENHA_RE = re.compile(r"[0-9a-f]{16,128}")
 
@@ -59,24 +58,6 @@ def senha() -> str:
     gerada = secrets.token_hex(24)
     escrever_chave(VPS_ENV, "POSTGRES_PASSWORD", gerada)
     return gerada
-
-
-def exigir_auth() -> tuple[str, str]:
-    valores = ler_env(VPS_ENV)
-    usuario = valores.get("BASIC_AUTH_USER", "")
-    hash_senha = valores.get("BASIC_AUTH_HASH", "")
-    if not USER_RE.fullmatch(usuario):
-        sys.exit("BASIC_AUTH_USER deve ter só letras, números, _ ou - (até 32).")
-    if not hash_senha:
-        sys.exit(
-            "BASIC_AUTH_HASH vazio em deploy/vps.env.\n"
-            "Gere o hash sem gravar a senha:\n\n"
-            "  docker run --rm caddy:2-alpine caddy hash-password --plaintext 'escolha-uma-senha'\n\n"
-            "Cole só o hash na linha BASIC_AUTH_HASH= e rode de novo."
-        )
-    if not HASH_RE.fullmatch(hash_senha):
-        sys.exit("BASIC_AUTH_HASH não parece a saída de caddy hash-password.")
-    return usuario, hash_senha
 
 
 def escrever_modo(destino: pathlib.Path, conteudo: str) -> None:
@@ -132,11 +113,9 @@ def cmd_write_remote_env(destino: str) -> None:
 
 
 def cmd_render_snippet(destino: str) -> None:
-    usuario, hash_senha = exigir_auth()
-    modelo = SNIPPET.read_text()
-    if "__BASIC_AUTH_USER__" not in modelo or "__BASIC_AUTH_HASH__" not in modelo:
-        sys.exit("deploy/Caddyfile.snippet sem os marcadores de usuário e hash.")
-    bloco = modelo.replace("__BASIC_AUTH_USER__", usuario).replace("__BASIC_AUTH_HASH__", hash_senha)
+    bloco = SNIPPET.read_text()
+    if "basic_auth" in bloco or "__BASIC_AUTH_" in bloco:
+        sys.exit("deploy/Caddyfile.snippet ainda tem o cadeado HTTP.")
     if not bloco.endswith("\n"):
         bloco += "\n"
     escrever_modo(pathlib.Path(destino), bloco)

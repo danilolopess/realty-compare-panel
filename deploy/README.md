@@ -19,16 +19,15 @@ A VPS tem 2 GB e a stack atual já está no teto. Estes contêineres têm teto p
 ## Antes de subir
 
 1. No Cloudflare, o registro **A** `casa` aponta para `192.255.242.108`. Deixe em **DNS only** (nuvem cinza) até o Caddy emitir o certificado. Proxy laranja só depois, com SSL **Full (strict)**.
-2. O `.env` da raiz tem `VITE_LLM_API_KEY` (entra no JavaScript), mais `AUTH_EMAIL`, `AUTH_SECRET` e `AUTH_PASSWORD_HASH`. Não use os valores de exemplo. `AUTH_SECRET` sai de `openssl rand -hex 32`. O hash da senha do painel sai de `npm run hash-password` (é base64, sem `$`). Quem passar do cadeado do Caddy ainda vê a chave do modelo no navegador. Ao remover o site, troque essa chave no provedor.
-3. Crie o arquivo do cadeado HTTP (não vai para o git):
+2. O `.env` da raiz tem `VITE_LLM_API_KEY` (entra no JavaScript), mais `AUTH_EMAIL`, `AUTH_SECRET` e `AUTH_PASSWORD_HASH`. Não use os valores de exemplo. `AUTH_SECRET` sai de `openssl rand -hex 32`. O hash da senha do painel sai de `npm run hash-password` (é base64, sem `$`). Quem abrir o site consegue ler a chave do modelo no JavaScript. Ao remover o site, troque essa chave no provedor.
+3. Crie a senha do Postgres deste app (não vai para o git):
 
 ```bash
 cp deploy/env.example deploy/vps.env
 chmod 600 deploy/vps.env
-docker run --rm caddy:2-alpine caddy hash-password --plaintext 'escolha-uma-senha'
 ```
 
-Cole **só o hash** em `BASIC_AUTH_HASH`. Pode deixar `POSTGRES_PASSWORD` vazio: `deploy.sh` gera uma senha hexadecimal e grava no mesmo arquivo. Não use `@`, `:` , `/` ou `#` se for preencher a senha à mão.
+Pode deixar `POSTGRES_PASSWORD` vazio: `deploy.sh` gera uma senha hexadecimal e grava no mesmo arquivo. Não use `@`, `:` , `/` ou `#` se for preencher a senha à mão.
 
 ## Subir
 
@@ -51,16 +50,10 @@ Quando o certificado existir, você pode ligar a nuvem laranja no Cloudflare.
 ## Conferir
 
 ```bash
-curl -sI https://casa.danilolopes.dev | head -n 5
+curl -sI https://casa.danilolopes.dev/login | head -n 5
 ```
 
-Sem usuário e senha a resposta é **401**. Esse é o cadeado do Caddy (`BASIC_AUTH_USER`). Com ele:
-
-```bash
-curl -sI -u 'USUARIO:SENHA' https://casa.danilolopes.dev/login | head -n 5
-```
-
-Aí a resposta é **200**. No navegador, depois do cadeado, entre com o `AUTH_EMAIL` e a senha cujo hash está no `.env`. São dois logins de propósito: o primeiro esconde o JavaScript; o segundo protege os imóveis.
+A resposta é **200**. No navegador, entre com o `AUTH_EMAIL` e a senha cujo hash está no `.env`. Esse login protege os imóveis.
 
 Na VPS:
 

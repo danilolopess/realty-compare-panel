@@ -1,9 +1,6 @@
 # BEGIN realty-compare
 casa.danilolopes.dev {
 	encode gzip
-	basic_auth {
-		__BASIC_AUTH_USER__ __BASIC_AUTH_HASH__
-	}
 	reverse_proxy realty-web:8080
 }
 # END realty-compare
