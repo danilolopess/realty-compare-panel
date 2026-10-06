@@ -92,6 +92,8 @@ export interface FilterState {
   max: number | null
   busca: string
   bairro: string            // 'todos' | nome do bairro
+  imobiliaria: string       // 'todos' | nome da imobiliária/corretor
+  dominio: string           // 'todos' | hostname do link do anúncio
   status: string            // 'todos' | StatusImovel
 }
 

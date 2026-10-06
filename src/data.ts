@@ -218,9 +218,38 @@ export function tempoRelativo(iso: string): string {
   return `há ${d} ${d === 1 ? 'dia' : 'dias'}`
 }
 
+function unicosOrdenados(valores: string[]): string[] {
+  return [...new Set(valores.filter((v) => v.trim() !== ''))].sort((a, b) =>
+    a.localeCompare(b, 'pt-BR'),
+  )
+}
+
+// Hostname do link do anúncio, sem "www.". Links vazios ou inválidos devolvem null.
+export function dominioDoLink(link: string): string | null {
+  const texto = link.trim()
+  if (!texto) return null
+  try {
+    const href = /^https?:\/\//i.test(texto) ? texto : `https://${texto}`
+    const host = new URL(href).hostname.toLowerCase().replace(/^www\./, '')
+    return host || null
+  } catch {
+    return null
+  }
+}
+
 // Lista de bairros únicos presentes na lista, ordenados alfabeticamente.
 export function bairrosDe(lista: Imovel[]): string[] {
-  return [...new Set(lista.map((i) => i.bairro))].sort((a, b) => a.localeCompare(b, 'pt-BR'))
+  return unicosOrdenados(lista.map((i) => i.bairro))
+}
+
+export function imobiliariasDe(lista: Imovel[]): string[] {
+  return unicosOrdenados(lista.map((i) => i.corretor.trim()))
+}
+
+export function dominiosDe(lista: Imovel[]): string[] {
+  return unicosOrdenados(
+    lista.map((i) => dominioDoLink(i.link)).filter((d): d is string => d !== null),
+  )
 }
 
 export function tiposDe(lista: Imovel[]): string[] {
@@ -266,6 +295,8 @@ export function filtra(lista: Imovel[], state: FilterState): Imovel[] {
     if (state.contato === 'sim' && !i.verif) return false
     if (state.max && i.custo != null && i.custo > state.max) return false
     if (state.bairro !== 'todos' && i.bairro !== state.bairro) return false
+    if (state.imobiliaria !== 'todos' && i.corretor.trim() !== state.imobiliaria) return false
+    if (state.dominio !== 'todos' && dominioDoLink(i.link) !== state.dominio) return false
     if (state.status === 'todos') {
       if (i.status === 'inviabilizado') return false
     } else if (i.status !== state.status) return false

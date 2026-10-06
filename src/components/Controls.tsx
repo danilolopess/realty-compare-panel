@@ -4,6 +4,8 @@ interface FiltrosVisiveis {
   tipo: boolean
   cidade: boolean
   bairro: boolean
+  imobiliaria: boolean
+  dominio: boolean
   garagem: boolean
   quintal: boolean
   pet: boolean
@@ -13,15 +15,36 @@ interface FiltrosVisiveis {
 interface Props {
   state: FilterState
   onChange: (patch: Partial<FilterState>) => void
+  onLimpar: () => void
+  podeLimpar: boolean
   bairros: string[]
+  imobiliarias: string[]
+  dominios: string[]
   tipos: string[]
   cidades: string[]
   filtrosVisiveis: FiltrosVisiveis
 }
 
-export default function Controls({ state, onChange, bairros, tipos, cidades, filtrosVisiveis }: Props) {
+export default function Controls({
+  state,
+  onChange,
+  onLimpar,
+  podeLimpar,
+  bairros,
+  imobiliarias,
+  dominios,
+  tipos,
+  cidades,
+  filtrosVisiveis,
+}: Props) {
   return (
     <div className="controls">
+      <div className="controls-topo">
+        <button type="button" className="btn-limpar" onClick={onLimpar} disabled={!podeLimpar}>
+          Limpar filtros
+        </button>
+      </div>
+      <div className="controls-lista">
       <div className="ctrl">
         <label>Buscar</label>
         <input
@@ -86,6 +109,37 @@ export default function Controls({ state, onChange, bairros, tipos, cidades, fil
             {bairros.map((b) => (
               <option key={b} value={b}>
                 {b}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {filtrosVisiveis.imobiliaria && (
+        <div className="ctrl">
+          <label>Imobiliária</label>
+          <select
+            value={state.imobiliaria}
+            onChange={(e) => onChange({ imobiliaria: e.target.value })}
+          >
+            <option value="todos">Todas</option>
+            {imobiliarias.map((nome) => (
+              <option key={nome} value={nome}>
+                {nome}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {filtrosVisiveis.dominio && (
+        <div className="ctrl">
+          <label>Domínio do anúncio</label>
+          <select value={state.dominio} onChange={(e) => onChange({ dominio: e.target.value })}>
+            <option value="todos">Todos</option>
+            {dominios.map((d) => (
+              <option key={d} value={d}>
+                {d}
               </option>
             ))}
           </select>
@@ -164,10 +218,12 @@ export default function Controls({ state, onChange, bairros, tipos, cidades, fil
           type="text"
           placeholder="ex: 1200"
           inputMode="numeric"
+          value={state.max ?? ''}
           onChange={(e) =>
             onChange({ max: parseFloat(e.target.value.replace(/\D/g, '')) || null })
           }
         />
+      </div>
       </div>
     </div>
   )
