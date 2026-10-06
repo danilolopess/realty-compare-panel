@@ -26,8 +26,9 @@ SPA em **React + Vite + TypeScript** para pesquisa, comparação e acompanhament
    - [Revisão e salvamento](#revisão-e-salvamento)
 7. [Gerenciar imóveis existentes](#7-gerenciar-imóveis-existentes)
 8. [Exportação de dados](#8-exportação-de-dados)
-9. [Estrutura do projeto](#9-estrutura-do-projeto)
-10. [Solução de problemas](#10-solução-de-problemas)
+9. [Backup e restauração do banco](#9-backup-e-restauração-do-banco)
+10. [Estrutura do projeto](#10-estrutura-do-projeto)
+11. [Solução de problemas](#11-solução-de-problemas)
 
 ---
 
@@ -360,7 +361,34 @@ Na aba **Chat**, na barra lateral de conversas, cada sessão possui uma opção 
 
 ---
 
-## 9. Estrutura do projeto
+## 9. Backup e restauração do banco
+
+Os scripts na raiz do projeto copiam o banco local inteiro: imóveis, status, notas, WhatsApp, favoritos, conversas do chat e rankings. O Docker precisa estar no ar (`docker compose up -d`). No WSL, se o comando `docker` não estiver integrado ao Docker Desktop, os scripts usam `docker.exe`.
+
+### Gerar um backup
+
+```bash
+./backup-db.sh
+```
+
+O arquivo é salvo em `backup/imoveis-AAAAMMDD-HHMMSS.sql`. O script imprime o caminho gerado. A pasta `backup/` não entra no git.
+
+### Restaurar um backup
+
+```bash
+./import-db.sh
+./import-db.sh backup/imoveis-20261006-110500.sql
+```
+
+Sem argumento, o import usa o `.sql` mais recente em `backup/`. A restauração substitui os dados atuais (apaga e recria as tabelas) e pede confirmação. Para pular a pergunta:
+
+```bash
+./import-db.sh --yes
+```
+
+---
+
+## 10. Estrutura do projeto
 
 ```text
 imoveis/
@@ -393,6 +421,8 @@ imoveis/
 │       ├── Controls.tsx       # barra de filtros
 │       └── Stats.tsx          # cartões de estatística (menor/médio/maior custo)
 ├── docker-compose.yml    # orquestra PostgreSQL + PostgREST
+├── backup-db.sh          # dump completo do Postgres em backup/
+├── import-db.sh          # restaura um dump SQL por cima do banco
 ├── .env                  # variáveis de ambiente (não versionado)
 └── package.json
 ```
@@ -409,7 +439,7 @@ Ao adicionar um novo campo, é necessário propagá-lo pelos três formatos e pe
 
 ---
 
-## 10. Solução de problemas
+## 11. Solução de problemas
 
 ### A aba Painel fica em "Carregando..."
 
@@ -451,4 +481,4 @@ docker compose down -v    # remove contêineres E volume de dados
 docker compose up -d      # recria tudo (schema aplicado automaticamente)
 ```
 
-> Esta operação **apaga todos os imóveis cadastrados**. Exporte os dados antes, se necessário (aba Painel → Exportar JSON).
+> Esta operação **apaga todos os dados do banco**. Faça um backup antes, se necessário (`./backup-db.sh`; veja a [seção 9](#9-backup-e-restauração-do-banco)).

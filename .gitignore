@@ -8,6 +8,10 @@ dist-ssr
 .env
 .env.*
 !.env.example
+deploy/vps.env
+
+# Dumps do Postgres local (notas, WhatsApp, conversas)
+backup/
 
 # Editor
 .vscode/*
@@ -18,6 +22,10 @@ dist-ssr
 # TypeScript build info
 tsconfig.tsbuildinfo
 tsconfig.node.tsbuildinfo
+
+# Cache do Python (scripts em deploy/)
+__pycache__/
+*.py[cod]
 
 # Vite compilado (gerado de vite.config.ts)
 vite.config.js

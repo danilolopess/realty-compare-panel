@@ -15,5 +15,5 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true
   },
-  "include": ["vite.config.ts", "ogProxy.ts"]
+  "include": ["vite.config.ts", "ogProxy.ts", "server/**/*.ts"]
 }

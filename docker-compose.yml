@@ -16,7 +16,9 @@ services:
     environment:
       PGRST_DB_URI: postgres://user:pass@db:5432/imoveis
       PGRST_DB_SCHEMAS: public
-      PGRST_DB_ANON_ROLE: user
+      # Sem JWT o papel anônimo não lê tabelas. O Vite assina o token com AUTH_SECRET.
+      PGRST_DB_ANON_ROLE: web_anon
+      PGRST_JWT_SECRET: ${AUTH_SECRET}
     ports:
       - "3000:3000"
     depends_on:

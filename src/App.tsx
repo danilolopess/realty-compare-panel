@@ -4,9 +4,15 @@ import Chat from './components/Chat'
 import Workflow from './components/Workflow'
 import Rankings from './components/Rankings'
 import GerenciarImoveis from './components/GerenciarImoveis'
+import Configuracoes from './components/Configuracoes'
 import type { ImovelView } from './components/GerenciarImoveis'
 
-type Aba = 'painel' | 'imoveis' | 'favoritos' | 'workflow' | 'rankings' | 'chat'
+type Aba = 'painel' | 'imoveis' | 'favoritos' | 'workflow' | 'rankings' | 'chat' | 'configuracoes'
+
+async function sair() {
+  await fetch('/api/logout', { method: 'POST' })
+  window.location.assign('/login')
+}
 
 export default function App() {
   const [aba, setAba] = useState<Aba>('painel')
@@ -51,6 +57,15 @@ export default function App() {
         >
           Chat
         </button>
+        <button
+          className={`tab ${aba === 'configuracoes' ? 'active' : ''}`}
+          onClick={() => setAba('configuracoes')}
+        >
+          Configurações
+        </button>
+        <button className="tab tab-sair" type="button" onClick={() => void sair()}>
+          Sair
+        </button>
       </nav>
 
       {aba === 'painel' && (
@@ -66,6 +81,7 @@ export default function App() {
       {aba === 'workflow' && <Workflow />}
       {aba === 'rankings' && <Rankings />}
       {aba === 'chat' && <Chat />}
+      {aba === 'configuracoes' && <Configuracoes />}
     </>
   )
 }

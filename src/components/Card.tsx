@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { brl, linkWhatsapp, tempoRelativo } from '../data'
-import { buscarOgImage, lerOgCache } from '../ogImage'
+import { buscarOgImage, lerOgCache, ouvirRecargaOg } from '../ogImage'
 import { STATUS_LABEL, montaFeats } from './feats'
 import type { Imovel, StatusImovel } from '../types'
 
@@ -16,6 +16,9 @@ function Miniatura({ link }: { link: string }) {
   const inicial = lerOgCache(link)
   const [src, setSrc] = useState<string | null>(inicial ?? null)
   const [carregando, setCarregando] = useState(inicial === undefined && Boolean(link.trim()))
+  const [recarga, setRecarga] = useState(0)
+
+  useEffect(() => ouvirRecargaOg(() => setRecarga((n) => n + 1)), [])
 
   useEffect(() => {
     const cache = lerOgCache(link)
@@ -39,7 +42,7 @@ function Miniatura({ link }: { link: string }) {
     return () => {
       vivo = false
     }
-  }, [link])
+  }, [link, recarga])
 
   const quadro = src ? (
     <img src={src} alt="" onError={() => setSrc(null)} />

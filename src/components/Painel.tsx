@@ -18,6 +18,7 @@ import {
   salvarWhatsapp,
   tiposDe,
 } from '../data'
+import { recarregarOgImagens } from '../ogImage'
 import type { FilterState, Imovel, SortKey, StatusImovel } from '../types'
 
 const CHAVE_FILTROS = 'painel-filtros'
@@ -235,6 +236,9 @@ export default function Painel({
                 + Adicionar imóvel
               </button>
             )}
+            <button className="btn-fotos" type="button" onClick={() => recarregarOgImagens()}>
+              Atualizar fotos
+            </button>
             <button
               className="btn-json"
               onClick={() => baixarImoveisJson(lista)}

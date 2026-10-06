@@ -7,8 +7,10 @@ type Disco = Record<string, string | null>
 const memoria = new Map<string, string | null>()
 let disco: Disco | null = null
 let ativos = 0
+let geracao = 0
 const fila: Array<() => void> = []
 const emVoo = new Map<string, Promise<string | null>>()
+const ouvintes = new Set<() => void>()
 
 function lerDisco(): Disco {
   if (disco) return disco
@@ -78,23 +80,46 @@ export function buscarOgImage(link: string): Promise<string | null> {
   const existente = emVoo.get(url)
   if (existente) return existente
 
+  const geracaoPedido = geracao
   const pedido = comVaga(async () => {
     const res = await fetch(`/api/og?url=${encodeURIComponent(url)}`)
     if (!res.ok) throw new Error('og')
     const body = (await res.json()) as { image?: unknown }
     const image = typeof body.image === 'string' && body.image ? body.image : null
+    if (geracaoPedido !== geracao) return null
     memoria.set(url, image)
     gravarDisco(url, image)
     return image
   })
     .catch(() => {
-      memoria.set(url, null)
+      if (geracaoPedido === geracao) memoria.set(url, null)
       return null
     })
     .finally(() => {
-      emVoo.delete(url)
+      if (emVoo.get(url) === pedido) emVoo.delete(url)
     })
 
   emVoo.set(url, pedido)
   return pedido
+}
+
+/** Apaga o cache e avisa os cartões montados para buscar de novo. */
+export function recarregarOgImagens() {
+  geracao += 1
+  memoria.clear()
+  disco = {}
+  emVoo.clear()
+  try {
+    localStorage.removeItem(CHAVE)
+  } catch {
+    // armazenamento indisponível: a memória já foi limpa
+  }
+  for (const ouvir of ouvintes) ouvir()
+}
+
+export function ouvirRecargaOg(ouvir: () => void): () => void {
+  ouvintes.add(ouvir)
+  return () => {
+    ouvintes.delete(ouvir)
+  }
 }

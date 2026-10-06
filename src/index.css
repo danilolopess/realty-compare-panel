@@ -81,6 +81,7 @@ select,input[type=text]{padding:8px 10px;border:1px solid #ccc;border-radius:8px
 /* Abas */
 .tabs{display:flex;gap:8px;margin-bottom:18px;border-bottom:2px solid var(--cinza)}
 .tab{padding:9px 18px;border:none;background:none;font-size:.95rem;font-weight:600;color:#888;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px}
+.tab-sair{margin-left:auto}
 .tab:hover{color:var(--azul)}
 .tab.active{color:var(--azul);border-bottom-color:var(--azul)}
 
@@ -180,6 +181,8 @@ select,input[type=text]{padding:8px 10px;border:1px solid #ccc;border-radius:8px
 
 /* ===== Modal Adicionar Imóvel ===== */
 .toolbar{display:flex;justify-content:flex-end;align-items:center;gap:10px;margin-bottom:14px}
+.btn-fotos{padding:9px 16px;border:1px solid #ccc;border-radius:8px;background:#fff;color:var(--azul);font-size:.88rem;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-fotos:hover{border-color:var(--azul);background:#f4f6fa}
 .btn-adicionar{background:var(--verde) !important}
 .btn-adicionar:hover:not(:disabled){background:#1b5e20 !important}
 .add-imovel-modal{background:#fff;border-radius:12px;padding:24px;display:flex;flex-direction:column;gap:14px;width:100%;max-width:680px}
@@ -452,6 +455,18 @@ select,input[type=text]{padding:8px 10px;border:1px solid #ccc;border-radius:8px
 .ranking-conclusao{background:#fbfaf7;border:1px solid #eceae3;border-left:4px solid var(--azul);border-radius:10px;padding:12px 16px;font-size:.86rem;line-height:1.6;color:#444}
 .ranking-conclusao-titulo{display:block;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--azul);font-weight:700;margin-bottom:4px}
 .ranking-conclusao p:last-child{margin-bottom:0}
+
+.login-wrap{min-height:calc(100dvh - 40px);display:flex;align-items:center;justify-content:center}
+.login-card{width:100%;max-width:420px;background:#fff;border-radius:14px;padding:28px 24px;box-shadow:0 3px 14px rgba(0,0,0,.07)}
+.login-kicker{font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--azul2)}
+.login-card h1{margin-top:6px}
+.login-campo{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.login-campo label{font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;color:#777;font-weight:600}
+.login-campo input{padding:8px 10px;border:1px solid #ccc;border-radius:8px;font-size:.9rem;background:#fff;width:100%}
+.login-erro{color:var(--laranja);font-size:.86rem;margin-bottom:12px}
+.login-ok{color:var(--verde);font-size:.86rem;margin-bottom:12px}
+.login-card .btn{width:100%}
+.config-card{max-width:420px}
 
 @media(max-width:820px){
   .ranking-btn-gerar{width:100%}

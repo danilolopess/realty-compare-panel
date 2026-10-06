@@ -52,7 +52,8 @@ export interface RankingSalvo {
   geradoEm: string
 }
 
-const API = 'http://localhost:3000'
+// Mesma origem do Vite/produção. O servidor exige o cookie e repassa ao PostgREST.
+const API = '/api/db'
 
 // Cache das linhas cruas (formato do banco) do último fetchImoveis().
 // Usado para exportar o JSON no formato original, sem reconstruir a
