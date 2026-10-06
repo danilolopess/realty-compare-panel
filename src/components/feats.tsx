@@ -6,6 +6,7 @@ import type { Imovel, StatusImovel } from '../types'
 export const STATUS_LABEL: Record<StatusImovel, string> = {
   nao_analisado: 'Não analisado',
   aguardando: 'Aguardando resposta',
+  visita_agendada: 'Visita agendada',
   inviabilizado: 'Inviabilizado',
 }
 

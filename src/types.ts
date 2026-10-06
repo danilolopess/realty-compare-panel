@@ -1,7 +1,7 @@
 // Estrutura "crua" exatamente como vem do arquivo imoveis.json
 export type AceitaPet = 'aceita' | 'nao_permite' | 'nao_informado'
 export type TipoImovel = string
-export type StatusImovel = 'nao_analisado' | 'aguardando' | 'inviabilizado'
+export type StatusImovel = 'nao_analisado' | 'aguardando' | 'visita_agendada' | 'inviabilizado'
 
 export interface RawImovel {
   id: number

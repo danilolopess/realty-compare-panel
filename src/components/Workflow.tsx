@@ -17,7 +17,7 @@ import { fetchImoveis, salvarFavorito, salvarNotas, salvarStatus, salvarWhatsapp
 import type { Imovel, StatusImovel } from '../types'
 
 // Ordem das colunas do kanban (uma por status).
-const COLUNAS: StatusImovel[] = ['nao_analisado', 'aguardando', 'inviabilizado']
+const COLUNAS: StatusImovel[] = ['nao_analisado', 'aguardando', 'visita_agendada', 'inviabilizado']
 
 export default function Workflow() {
   const [imoveis, setImoveis] = useState<Imovel[]>([])
@@ -57,6 +57,7 @@ export default function Workflow() {
     const grupos: Record<StatusImovel, Imovel[]> = {
       nao_analisado: [],
       aguardando: [],
+      visita_agendada: [],
       inviabilizado: [],
     }
     imoveis.forEach((i) => grupos[i.status].push(i))

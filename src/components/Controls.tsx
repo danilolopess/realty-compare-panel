@@ -98,6 +98,7 @@ export default function Controls({ state, onChange, bairros, tipos, cidades, fil
           <option value="todos">Todos (exceto inviabilizados)</option>
           <option value="nao_analisado">Não analisado</option>
           <option value="aguardando">Aguardando resposta</option>
+          <option value="visita_agendada">Visita agendada</option>
           <option value="inviabilizado">Inviabilizado</option>
         </select>
       </div>

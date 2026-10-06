@@ -22,7 +22,10 @@ select,input[type=text]{padding:8px 10px;border:1px solid #ccc;border-radius:8px
 .stat .v{font-size:1.4rem;font-weight:700;color:var(--azul)}
 .stat .l{font-size:.72rem;color:#777;text-transform:uppercase}
 .grid{display:flex;flex-direction:column;gap:14px}
-.card{background:#fff;border-radius:14px;padding:18px;box-shadow:0 3px 14px rgba(0,0,0,.07);border-left:5px solid var(--azul2);display:grid;grid-template-columns:1fr 230px;gap:18px;position:relative}
+.card{background:#fff;border-radius:14px;padding:18px;box-shadow:0 3px 14px rgba(0,0,0,.07);border-left:5px solid var(--azul2);display:grid;grid-template-columns:148px 1fr 230px;gap:18px;position:relative}
+.card-thumb{display:block;width:148px;aspect-ratio:4/3;border-radius:10px;overflow:hidden;background:#E8EAED;align-self:start}
+.card-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.card-thumb.carregando{background:#E4E6EA}
 .card.casa{border-left-color:var(--wine)}
 .card-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .fav-btn{display:flex;align-items:center;gap:5px;background:none;border:1px dashed #bbb;border-radius:20px;padding:3px 9px;font-size:1.1rem;line-height:1;cursor:pointer;color:#777;filter:none;opacity:.85;transition:transform .12s ease,opacity .12s ease,border-color .12s ease,color .12s ease}
@@ -60,6 +63,7 @@ select,input[type=text]{padding:8px 10px;border:1px solid #ccc;border-radius:8px
 .status-select{padding:8px 10px;border:1px solid #ccc;border-radius:8px;font-size:.82rem;font-weight:600;cursor:pointer;width:100%}
 .status-select.status-nao_analisado{background:#F0F2F5;color:#555;border-color:#d4d7db}
 .status-select.status-aguardando{background:var(--amarelo-bg);color:#8a6d00;border-color:#e8d48a}
+.status-select.status-visita_agendada{background:var(--verde-bg);color:var(--verde);border-color:#b7d7b9}
 .status-select.status-inviabilizado{background:var(--laranja-bg);color:var(--laranja);border-color:#e8b3ad}
 .status-tempo{font-size:.74rem;color:#8a6d00;font-weight:600;text-align:center}
 .notas{display:flex;flex-direction:column;gap:4px;border-top:1px dashed #ddd;padding-top:8px;margin-top:2px}
@@ -158,6 +162,7 @@ select,input[type=text]{padding:8px 10px;border:1px solid #ccc;border-radius:8px
   .layout{grid-template-columns:1fr}
   .sidebar{position:static}
   .card{grid-template-columns:1fr}
+  .card-thumb{width:100%}
   .card-side{border-left:none;border-top:1px dashed #e2e2e2;padding-left:0;padding-top:10px}
   .chat-bar-actions{width:100%}
   .chat-bar-actions select{flex:1;min-width:0}
@@ -234,6 +239,7 @@ select,input[type=text]{padding:8px 10px;border:1px solid #ccc;border-radius:8px
 .td-custo{font-weight:700;color:var(--wine)}
 .td-status-nao_analisado{color:#888}
 .td-status-aguardando{color:#8a6d00;font-weight:600}
+.td-status-visita_agendada{color:var(--verde);font-weight:600}
 .td-status-inviabilizado{color:var(--laranja);font-weight:600}
 .imoveis-breadcrumb{display:flex;align-items:center;gap:8px;margin-bottom:18px}
 .imoveis-breadcrumb-btn{background:none;border:none;color:var(--azul2);font-size:.9rem;cursor:pointer;padding:0;font-weight:600;text-decoration:underline}
@@ -284,6 +290,7 @@ select,input[type=text]{padding:8px 10px;border:1px solid #ccc;border-radius:8px
 .flow-board{display:flex;gap:14px;align-items:stretch}
 .flow-col{flex:1 1 0;min-width:0;display:flex;flex-direction:column;background:#ECE9E1;border-radius:6px;padding:12px;border-top:3px solid #b9bdc4}
 .flow-col.status-aguardando{border-top-color:#dcb53a}
+.flow-col.status-visita_agendada{border-top-color:var(--verde)}
 .flow-col.status-inviabilizado{border-top-color:var(--laranja)}
 .flow-col-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
 .flow-col-title{font-size:.78rem;font-weight:700;color:#3a3f47;text-transform:uppercase;letter-spacing:.04em}

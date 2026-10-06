@@ -16,7 +16,11 @@ import {
   salvarWhatsapp,
   tiposDe,
 } from '../data'
-import type { FilterState, Imovel, StatusImovel } from '../types'
+import type { FilterState, Imovel, SortKey, StatusImovel } from '../types'
+
+const CHAVE_FILTROS = 'painel-filtros'
+
+const SORTS: readonly SortKey[] = ['custo', 'custo-desc', 'aluguel', 'quartos-desc', 'area-desc']
 
 const estadoInicial: FilterState = {
   tipo: 'todos',
@@ -32,6 +36,35 @@ const estadoInicial: FilterState = {
   status: 'todos',
 }
 
+function texto(valor: unknown, fallback: string): string {
+  return typeof valor === 'string' ? valor : fallback
+}
+
+function lerFiltros(): FilterState {
+  try {
+    const raw = localStorage.getItem(CHAVE_FILTROS)
+    if (!raw) return estadoInicial
+    const o = JSON.parse(raw) as Partial<Record<keyof FilterState, unknown>>
+    const sort = SORTS.includes(o.sort as SortKey) ? (o.sort as SortKey) : estadoInicial.sort
+    const max = typeof o.max === 'number' && Number.isFinite(o.max) ? o.max : null
+    return {
+      tipo: texto(o.tipo, estadoInicial.tipo),
+      cidade: texto(o.cidade, estadoInicial.cidade),
+      sort,
+      garagem: texto(o.garagem, estadoInicial.garagem),
+      quintal: texto(o.quintal, estadoInicial.quintal),
+      pet: texto(o.pet, estadoInicial.pet),
+      contato: texto(o.contato, estadoInicial.contato),
+      max,
+      busca: texto(o.busca, estadoInicial.busca),
+      bairro: texto(o.bairro, estadoInicial.bairro),
+      status: texto(o.status, estadoInicial.status),
+    }
+  } catch {
+    return estadoInicial
+  }
+}
+
 export default function Painel({
   somenteFavoritos = false,
   onAdicionar,
@@ -41,7 +74,7 @@ export default function Painel({
 }) {
   const [imoveis, setImoveis] = useState<Imovel[]>([])
   const [loading, setLoading] = useState(true)
-  const [state, setState] = useState<FilterState>(estadoInicial)
+  const [state, setState] = useState<FilterState>(lerFiltros)
 
   useEffect(() => {
     fetchImoveis().then((data) => {
@@ -49,6 +82,14 @@ export default function Painel({
       setLoading(false)
     })
   }, [])
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(CHAVE_FILTROS, JSON.stringify(state))
+    } catch {
+      // sem localStorage disponível
+    }
+  }, [state])
 
   const onChange = (patch: Partial<FilterState>) =>
     setState((prev) => ({ ...prev, ...patch }))
@@ -100,6 +141,7 @@ export default function Painel({
   }), [base, tipos, cidades, bairros])
 
   useEffect(() => {
+    if (loading) return
     const patch: Partial<FilterState> = {}
     if (!filtrosVisiveis.tipo    && state.tipo    !== 'todos') patch.tipo    = 'todos'
     if (!filtrosVisiveis.cidade  && state.cidade  !== 'todos') patch.cidade  = 'todos'
@@ -109,7 +151,7 @@ export default function Painel({
     if (!filtrosVisiveis.pet     && state.pet     !== 'todos') patch.pet     = 'todos'
     if (!filtrosVisiveis.contato && state.contato !== 'todos') patch.contato = 'todos'
     if (Object.keys(patch).length > 0) setState((prev) => ({ ...prev, ...patch }))
-  }, [filtrosVisiveis])
+  }, [filtrosVisiveis, loading, state])
 
   const lista = useMemo(() => filtra(base, state), [base, state])
 

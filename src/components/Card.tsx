@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { brl, linkWhatsapp, tempoRelativo } from '../data'
+import { buscarOgImage, lerOgCache } from '../ogImage'
 import { STATUS_LABEL, montaFeats } from './feats'
 import type { Imovel, StatusImovel } from '../types'
 
@@ -9,6 +10,56 @@ interface Props {
   onStatus: (id: number, status: StatusImovel) => void | Promise<void>
   onNotas: (id: number, notas: string) => void | Promise<void>
   onFavorito: (id: number, favorito: boolean) => void | Promise<void>
+}
+
+function Miniatura({ link }: { link: string }) {
+  const inicial = lerOgCache(link)
+  const [src, setSrc] = useState<string | null>(inicial ?? null)
+  const [carregando, setCarregando] = useState(inicial === undefined && Boolean(link.trim()))
+
+  useEffect(() => {
+    const cache = lerOgCache(link)
+    if (cache !== undefined) {
+      setSrc(cache)
+      setCarregando(false)
+      return
+    }
+    if (!link.trim()) {
+      setSrc(null)
+      setCarregando(false)
+      return
+    }
+    let vivo = true
+    setCarregando(true)
+    buscarOgImage(link).then((img) => {
+      if (!vivo) return
+      setSrc(img)
+      setCarregando(false)
+    })
+    return () => {
+      vivo = false
+    }
+  }, [link])
+
+  const quadro = src ? (
+    <img src={src} alt="" onError={() => setSrc(null)} />
+  ) : null
+
+  if (!link.trim()) {
+    return <div className={`card-thumb${carregando ? ' carregando' : ''}`} aria-hidden />
+  }
+
+  return (
+    <a
+      className={`card-thumb${carregando ? ' carregando' : ''}`}
+      href={link}
+      target="_blank"
+      rel="noreferrer"
+      aria-label="Foto do anúncio"
+    >
+      {quadro}
+    </a>
+  )
 }
 
 export default function Card({ imovel: i, onWhatsapp, onStatus, onNotas, onFavorito }: Props) {
@@ -27,6 +78,7 @@ export default function Card({ imovel: i, onWhatsapp, onStatus, onNotas, onFavor
 
   return (
     <div className={`card ${cls}`}>
+      <Miniatura link={i.link} />
       <div className="card-main">
         <div className="card-head">
           <span className={`badge ${btipo}`}>{i.tipo}</span>
